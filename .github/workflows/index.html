@@ -1,43 +1,1345 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0C">
+<title>GeekWeeD</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: { bg:'#0A0A0C', surface:'#12141A', surface2:'#1E2028', neon:'#00FF88', mint:'#10B981', mystic:'#8B5CF6', arcane:'#3B82F6' },
+    fontFamily: { serif:['Cinzel','Georgia','serif'], sans:['Inter','system-ui','sans-serif'] }
+  } }
+}
+</script>
+<style>
+  body{background:#0A0A0C;font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+  .glow{box-shadow:0 0 0 1px rgba(0,255,136,.45),0 0 28px rgba(0,255,136,.18),inset 0 0 40px rgba(0,255,136,.05)}
+  .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}
+  .grad-border{background:linear-gradient(#12141A,#12141A) padding-box,linear-gradient(135deg,#8B5CF6,#00FF88,#3B82F6) border-box;border:2px solid transparent}
+  .mana{width:30px;height:30px;border-radius:9999px;display:grid;place-items:center;font-weight:800;font-size:13px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+  .btn:active{transform:scale(.97)}
+  #view-game{height:100vh;height:100dvh;overscroll-behavior:none;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  .quad{position:relative;overflow:hidden;transition:box-shadow .3s,filter .3s}
+  .quad.picked{box-shadow:inset 0 0 0 4px #00FF88,inset 0 0 60px 10px rgba(0,255,136,.6);z-index:5;animation:pulse .6s ease-in-out infinite alternate}
+  @keyframes pulse{to{filter:brightness(1.35)}}
+  .lifebtn{background:rgba(255,255,255,.12);backdrop-filter:blur(2px);transition:background .1s,transform .1s}
+  .lifebtn:active{background:rgba(255,255,255,.3);transform:scale(.94)}
+  .disc{background:radial-gradient(circle at 30% 25%,#3a3d46,#15171c 70%);box-shadow:0 0 0 2px #0a0a0c,0 0 0 4px rgba(0,255,136,.55),0 0 30px rgba(0,255,136,.35),0 10px 30px rgba(0,0,0,.8)}
+  .slice{color:#cfd3dc;transition:color .15s,background .15s}
+  .slice:active{color:#00FF88;background:rgba(0,255,136,.12)}
+  @keyframes spin20{to{transform:rotate(720deg) scale(1.15)}}
+  .sw{position:relative;width:50px;height:28px;border-radius:9999px;background:#2a2d36;flex-shrink:0;transition:background .2s,box-shadow .2s}.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:9999px;background:#9aa0ac;transition:transform .2s,background .2s}.sw.on{background:rgba(0,255,136,.25);box-shadow:0 0 0 1px #00FF88,0 0 12px rgba(0,255,136,.45)}.sw.on::after{transform:translateX(22px);background:#00FF88}
+  .cmdchip{background:rgba(255,255,255,.14);backdrop-filter:blur(3px);box-shadow:0 0 0 1px rgba(255,255,255,.18)}.cmdchip:active{background:rgba(0,255,136,.35)}
+  .statusbar{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:100%;min-height:30px;margin-top:6px;padding:4px 8px;border-radius:9999px;background:rgba(0,0,0,.4);box-shadow:0 0 0 1px rgba(255,255,255,.12);align-content:center}.statusbar:active{background:rgba(0,255,136,.25)}
+  .chip{font-size:12px;font-weight:700;white-space:nowrap;line-height:1.2}
+  .radar{animation:ping 2.4s cubic-bezier(0,0,.2,1) infinite}.radar.d2{animation-delay:1.2s}@keyframes ping{75%,100%{transform:scale(2);opacity:0}}
+  .quad.ko{filter:grayscale(1) brightness(.6)}
+  .rolling{animation:spin20 1s cubic-bezier(.2,.8,.2,1)}
+</style>
+</head>
+<body class="text-white min-h-screen">
+<div id="view-home" class="mx-auto max-w-[430px] min-h-screen pb-10 relative">
 
-on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
+  <!-- 1. Header -->
+  <header class="sticky top-0 z-20 flex items-center justify-between px-5 h-16 bg-bg/90 backdrop-blur">
+    <a href="#" class="font-serif font-bold text-2xl tracking-tight">Geek<span class="text-neon">WeeD</span></a>
+    <div class="flex items-center gap-1">
+      <button id="hdr-login" onclick="authPanel('in')" class="h-9 px-3 mr-1 rounded-full border border-neon/60 text-neon text-[10px] font-extrabold tracking-wider whitespace-nowrap active:bg-neon/10">ENTRAR / CRIAR CONTA</button>
+      <button id="hdr-bell" aria-label="Notificações" class="hidden relative w-11 h-11 grid place-items-center rounded-full active:bg-surface2">
+        <i data-lucide="bell" class="w-6 h-6"></i>
+        <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-bg"></span>
+      </button>
+      <button id="hdr-avatar" onclick="avatarClick()" aria-label="Conta" class="hidden relative w-11 h-11 grid place-items-center">
+        <img src="https://i.pravatar.cc/80?img=12" alt="Avatar" class="w-9 h-9 rounded-full object-cover ring-2 ring-mint">
+        <span class="absolute bottom-1.5 right-1.5 w-3 h-3 rounded-full bg-neon ring-2 ring-bg"></span>
+      </button>
+      <button onclick="appSettingsPanel()" aria-label="Configurações do app" class="w-11 h-11 grid place-items-center rounded-full active:bg-surface2">
+        <i data-lucide="settings" class="w-6 h-6"></i>
+      </button>
+    </div>
+  </header>
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  <main class="px-4 space-y-6">
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+    <!-- 2. Hero -->
+    <section aria-label="Destaque">
+      <a href="#" class="relative block h-[170px] rounded-2xl overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=900&q=70" alt="" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-emerald-950/30"></div>
+        <h1 class="absolute left-5 right-14 bottom-5 font-serif font-bold text-2xl leading-tight">O novo arquétipo que quebrou o Pauper</h1>
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 grid place-items-center rounded-full bg-black/50 text-white/80"><i data-lucide="chevron-right" class="w-5 h-5"></i></span>
+      </a>
+    </section>
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+    <!-- 3. Abrir Mesa -->
+    <section aria-label="Abrir mesa">
+      <div data-go="game" class="glow cursor-pointer relative rounded-2xl overflow-hidden p-5 bg-gradient-to-br from-emerald-950 via-[#06150f] to-surface">
+        <i data-lucide="swords" class="absolute -right-3 -top-3 w-28 h-28 text-neon/15"></i>
+        <span class="inline-block bg-neon text-black text-xs font-extrabold tracking-widest px-3 py-1.5 rounded-lg">MODO DE JOGO</span>
+        <div class="flex items-center gap-3 mt-4">
+          <h2 class="font-serif font-bold text-4xl tracking-wide">ABRIR MESA</h2>
+          <i data-lucide="swords" class="w-9 h-9 text-neon shrink-0"></i>
+        </div>
+        <p class="text-sm text-white/70 mt-2 max-w-[260px]">Inicie ou entre em um jogo para marcar vida e registrar estatísticas.</p>
+        <button class="btn mt-5 w-full h-14 rounded-xl bg-neon text-black font-extrabold tracking-widest text-base shadow-[0_0_24px_rgba(0,255,136,.45)] flex items-center justify-center gap-2">
+          COMEÇAR <i data-lucide="arrow-right" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </section>
 
-jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+    <!-- 4. Tendências -->
+    <section aria-label="Tendências de mercado">
+      <div class="flex items-end justify-between mb-3 px-1">
+        <div>
+          <h2 class="font-serif font-bold text-2xl">Tendências de Mercado</h2>
+          <p class="text-sm text-white/60 flex items-center gap-1.5 mt-0.5">Cartas que mais subiram <i data-lucide="trending-up" class="w-4 h-4 text-neon"></i></p>
+        </div>
+      </div>
+      <div class="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-4 px-4 pb-2">
+        <article class="snap-start shrink-0 w-[140px] bg-surface rounded-xl p-2 border border-white/5">
+          <img src="https://api.scryfall.com/cards/named?exact=Winota,+Joiner+of+Forces&format=image&version=normal" alt="Winota, Joiner of Forces" class="rounded-lg w-full aspect-[488/680] object-cover bg-surface2">
+          <div class="flex justify-between items-center mt-2 px-1 text-sm font-semibold"><span class="text-neon">+25%</span><span>R$ 50,00</span></div>
+        </article>
+        <article class="snap-start shrink-0 w-[140px] bg-surface rounded-xl p-2 border border-white/5">
+          <img src="https://api.scryfall.com/cards/named?exact=Tameshi,+Reality+Architect&format=image&version=normal" alt="Carta" class="rounded-lg w-full aspect-[488/680] object-cover bg-surface2">
+          <div class="flex justify-between items-center mt-2 px-1 text-sm font-semibold"><span class="text-neon">+18%</span><span>R$ 32,00</span></div>
+        </article>
+        <article class="snap-start shrink-0 w-[140px] bg-surface rounded-xl p-2 border border-white/5">
+          <img src="https://api.scryfall.com/cards/named?exact=Ugin,+Eye+of+the+Storms&format=image&version=normal" alt="Ugin, Eye of the Storms" class="rounded-lg w-full aspect-[488/680] object-cover bg-surface2">
+          <div class="flex justify-between items-center mt-2 px-1 text-sm font-semibold"><span class="text-neon">+12%</span><span>R$ 89,90</span></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 5. Perfil -->
+    <section aria-label="Perfil do jogador">
+      <div class="grad-border rounded-2xl overflow-hidden">
+        <div id="prof-cover" class="relative h-36 bg-cover bg-center bg-surface2" style="background-image:url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200&q=75')">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#12141A] via-[#12141A]/25 to-transparent"></div>
+          <button onclick="appSettingsPanel()" aria-label="Configurações do app" class="absolute top-2 left-2 w-10 h-10 grid place-items-center rounded-full bg-black/50 backdrop-blur text-white/90 active:bg-black/70"><i data-lucide="settings" class="w-5 h-5"></i></button>
+          <button onclick="coverModal()" aria-label="Alterar capa" class="absolute top-2 right-2 w-10 h-10 grid place-items-center rounded-full bg-black/50 backdrop-blur text-white/90 active:bg-black/70"><i data-lucide="camera" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 pb-5">
+        <div class="flex items-end gap-4 -mt-10 relative">
+          <button onclick="avatarModal()" aria-label="Alterar avatar" class="shrink-0"><img id="prof-avatar" src="https://i.pravatar.cc/160?img=12" alt="Avatar" class="w-20 h-20 rounded-full object-cover border-4 border-neon bg-surface shadow-[0_0_18px_rgba(0,255,136,.45)]"></button>
+          <div class="flex-1 min-w-0 pb-1">
+            <h2 id="prof-name" class="font-serif font-bold text-2xl truncate">Lucas_Geek</h2>
+            <p class="text-sm text-mint">Nível 12 - Arqui-inimigo da Loja</p>
+            <p id="prof-deck" class="text-xs text-white/50 truncate"></p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="flex justify-between text-xs text-white/60 mb-1.5"><span>XP</span><span>1.240 / 2.000</span></div>
+          <div class="h-2.5 rounded-full bg-surface2 overflow-hidden"><div class="h-full w-[62%] rounded-full bg-gradient-to-r from-mint to-neon shadow-[0_0_10px_#00FF88]"></div></div>
+        </div>
+        <div class="flex gap-3 mt-4">
+          <span class="w-11 h-11 grid place-items-center rounded-full bg-surface2 text-amber-400"><i data-lucide="shield-check" class="w-6 h-6"></i></span>
+          <span class="w-11 h-11 grid place-items-center rounded-full bg-surface2 text-mystic"><i data-lucide="award" class="w-6 h-6"></i></span>
+          <span class="w-11 h-11 grid place-items-center rounded-full bg-surface2 text-arcane"><i data-lucide="gem" class="w-6 h-6"></i></span>
+          <span class="w-11 h-11 grid place-items-center rounded-full bg-surface2 text-neon"><i data-lucide="crown" class="w-6 h-6"></i></span>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mt-5">
+          <div class="bg-surface2 rounded-xl p-3 text-center">
+            <p class="text-2xl font-extrabold">74</p><p class="text-[11px] text-white/60 mt-0.5">Partidas</p>
+          </div>
+          <div class="bg-surface2 rounded-xl p-3 text-center">
+            <p class="text-2xl font-extrabold text-neon">48%</p><p class="text-[11px] text-white/60 mt-0.5">Vitórias</p>
+          </div>
+          <div class="bg-surface2 rounded-xl p-3 text-center">
+            <div class="flex justify-center -space-x-2 h-8 items-center">
+              <span class="mana bg-zinc-800 text-zinc-200" title="Preta">B</span>
+              <span class="mana bg-red-600" title="Vermelha">R</span>
+              <span class="mana bg-blue-600" title="Azul">U</span>
+            </div>
+            <p class="text-[11px] text-white/60 mt-1">Mais joga</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-5">
+          <button onclick="decksPanel()" class="btn h-14 rounded-xl bg-neon text-black font-extrabold text-sm tracking-wider flex items-center justify-center gap-2"><i data-lucide="layers" class="w-5 h-5"></i>MEUS DECKS</button>
+          <button onclick="collectionPanel()" class="btn h-14 rounded-xl border border-neon/60 text-neon font-extrabold text-sm tracking-wider flex items-center justify-center gap-2"><i data-lucide="library" class="w-5 h-5"></i>MINHA COLEÇÃO</button>
+        </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- LIFETAP -->
+<div id="view-game" class="hidden fixed inset-0 z-50 bg-bg">
+  <div class="relative mx-auto max-w-[430px] h-full">
+    <div id="grid" class="grid grid-cols-2 grid-rows-2 h-full"></div>
+
+    <!-- Menu radial -->
+    <div id="radial" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[148px] h-[148px] rounded-full disc">
+      <button data-act="finish" aria-label="Finalizar partida" class="slice absolute left-1/2 -translate-x-1/2 top-0 w-14 h-12 grid place-items-center rounded-t-full"><i data-lucide="flag" class="w-5 h-5"></i></button>
+      <button data-act="history" aria-label="Histórico" class="slice absolute left-1/2 -translate-x-1/2 bottom-0 w-14 h-12 grid place-items-center rounded-b-full"><i data-lucide="history" class="w-5 h-5"></i></button>
+      <button data-act="settings" aria-label="Configurações" class="slice absolute left-0 top-1/2 -translate-y-1/2 w-12 h-14 grid place-items-center rounded-l-full"><i data-lucide="settings" class="w-5 h-5"></i></button>
+      <button data-act="utils" aria-label="Utilitários" class="slice absolute right-0 top-1/2 -translate-y-1/2 w-12 h-14 grid place-items-center rounded-r-full"><i data-lucide="coins" class="w-5 h-5"></i></button>
+      <button id="d20" data-act="d20" aria-label="Sortear oponente" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[62px] h-[62px] rounded-full bg-[#0c1f18] grid place-items-center ring-2 ring-neon shadow-[0_0_18px_rgba(0,255,136,.6)]"><i data-lucide="dices" class="w-8 h-8 text-neon"></i></button>
+    </div>
+
+    <button id="back" aria-label="Voltar para a Home" data-act="finish" class="absolute left-1/2 -translate-x-1/2 top-2 z-20 h-10 px-4 rounded-full bg-black/60 border border-neon/50 text-neon text-xs font-bold tracking-wider flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i>HOME</button>
+
+    <button id="turn" class="hidden absolute left-1/2 -translate-x-1/2 top-14 z-20 h-8 px-3 rounded-full bg-black/60 border border-white/20 text-xs font-bold tabular-nums"></button>
+  </div>
+</div>
+
+    <!-- Painel (tela cheia) -->
+    <div id="panel" class="hidden fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[60] bg-bg flex-col">
+      <header class="flex items-center gap-2 px-2 h-14 border-b border-white/10 shrink-0">
+        <button onclick="closePanel()" aria-label="Voltar" class="w-11 h-11 grid place-items-center rounded-full active:bg-surface2"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+        <h2 id="panel-title" class="flex-1 text-center font-serif font-bold text-lg pr-11"></h2>
+      </header>
+      <div id="panel-body" class="flex-1 overflow-y-auto px-4 pb-6"></div>
+    </div>
+    <!-- Modal pequeno -->
+    <div id="modal" class="hidden fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[70] bg-black/75 backdrop-blur-sm items-center justify-center p-5">
+      <div class="w-full max-h-[80%] overflow-y-auto bg-surface border border-neon/30 rounded-2xl p-5 shadow-[0_0_30px_rgba(0,255,136,.15)]" id="modal-body"></div>
+    </div>
+    <div id="toast" class="hidden fixed left-1/2 -translate-x-1/2 bottom-24 z-[80] bg-black/85 border border-neon text-neon font-bold px-5 py-3 rounded-xl text-center"></div>
+
+<script>
+lucide.createIcons();
+
+const $ = s => document.querySelector(s);
+let START_LIFE = 40;
+const art = n => `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(n)}&format=image&version=art_crop`;
+let players = [
+  { name:'Jogador 1', life:START_LIFE, tint:'rgba(16,185,129,.45)',  img:art('Korvold, Fae-Cursed King') },
+  { name:'Jogador 2', life:START_LIFE, tint:'rgba(234,179,8,.40)',   img:art('Selvala, Heart of the Wilds') },
+  { name:'Jogador 3', life:START_LIFE, tint:'rgba(239,68,68,.40)',   img:art('Kykar, Wind\'s Fury') },
+  { name:'Jogador 4', life:START_LIFE, tint:'rgba(59,130,246,.42)',  img:art('Tatyova, Benthic Druid') },
+];
+let log = [];
+const newCounters = () => ({ poison:0, energy:0, tax:0, exp:0, rad:0, treasure:0, monarch:false, initiative:false, blessing:false });
+players.forEach(p => p.counters = newCounters());
+let isDay = true;
+const DEFAULTS = { startLife:40, autoKO:true, cmdLoss:true, timer:false, camera:false, vibrate:true, wake:true };
+let settings = { ...DEFAULTS };
+try { Object.assign(settings, JSON.parse(localStorage.getItem('gw_settings') || '{}')); } catch(e){}
+let cmd = Array.from({length:4}, () => [0,0,0,0]); // cmd[i][j] = dano que i recebeu do comandante de j
+let currentWinnerIdx = null;
+START_LIFE = [20, 30, 40].includes(settings.startLife) ? settings.startLife : 40; players.forEach(p => p.life = START_LIFE);
+let gameStart = Date.now(), currentWinner = null, turnNo = 1, turnStart = Date.now();
+
+/* ---------- Navegação ---------- */
+let state = 'home';
+function setState(s){
+  state = s;
+  $('#view-home').classList.toggle('hidden', s !== 'home');
+  $('#view-game').classList.toggle('hidden', s !== 'game');
+  document.body.style.overflow = s === 'game' ? 'hidden' : '';
+  window.scrollTo(0,0);
+  if (s === 'game'){ renderGrid(); updateTurn(); }
+  applyWake();
+}
+document.querySelectorAll('[data-go="game"]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); newGame(); setState('game'); applyActiveDeck(); }));
+
+function newGame(){ players.forEach(p => p.life = START_LIFE); log = []; players.forEach(p => p.counters = newCounters()); isDay = true; cmd = Array.from({length:4}, () => [0,0,0,0]); gameStart = Date.now(); currentWinner = null; currentWinnerIdx = null; turnNo = 1; turnStart = Date.now(); }
+
+/* ---------- Grid 2x2 ---------- */
+function renderGrid(){
+  const g = $('#grid');
+  g.innerHTML = players.map((p,i) => {
+    const top = i < 2 && !settings.camera;
+    const ko = isKO(i);
+    const chipPos = `${i % 2 === 0 ? 'right' : 'left'}:6px;${i < 2 ? 'bottom' : 'top'}:84px`;
+    return `
+    <section class="quad ${ko ? 'ko' : ''}" data-i="${i}">
+      <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('${p.img}')"></div>
+      <div class="absolute inset-0" style="background:linear-gradient(${p.tint},${p.tint}),rgba(0,0,0,.6)"></div>
+      <div class="absolute inset-0 flex items-stretch ${top ? 'rotate-180' : ''}">
+        <button class="lifebtn flex-1 m-2 mr-0 rounded-2xl grid place-items-center text-4xl font-light" data-d="-1" aria-label="Diminuir vida">−</button>
+        <div class="w-[44%] flex flex-col items-center justify-center">
+          <button class="namebtn text-[11px] tracking-widest uppercase text-white/80 truncate max-w-full px-2 py-1 rounded-full bg-black/30 flex items-center gap-1" aria-label="Selecionar deck de ${esc(p.name)}"><span class="truncate">${esc(p.name)}</span><span class="opacity-60">▾</span></button>
+          ${p.deck && p.cmdr ? `<span class="text-[10px] text-neon/90 truncate max-w-full px-1 mt-0.5">${esc(p.cmdr)}</span>` : ''}
+          <span class="life font-sans font-extrabold text-6xl leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,.8)]">${p.life}</span>
+          <span class="delta text-sm font-bold text-neon h-5 mt-1"></span>
+          <button class="statusbar" data-st="${i}" aria-label="Contadores de ${esc(p.name)}">${chipsHtml(i)}</button>
+        </div>
+        <button class="lifebtn flex-1 m-2 ml-0 rounded-2xl grid place-items-center text-4xl font-light" data-d="1" aria-label="Aumentar vida">+</button>
+      </div>
+      <button class="cmdchip absolute z-10 min-w-[48px] h-11 px-2 rounded-xl text-white font-extrabold text-lg tabular-nums" style="${chipPos}" data-cmd="${i}" aria-label="Dano de comandante de ${esc(p.name)}">
+        <span class="flex items-center justify-center gap-1 ${top ? 'rotate-180' : ''}"><span class="text-xs">⚔</span><span class="chipn ${Math.max(...cmd[i]) >= 21 ? 'text-red-400' : ''}">${Math.max(...cmd[i])}</span></span>
+      </button>
+    </section>`;
+  }).join('');
+  g.querySelectorAll('.quad').forEach(q => {
+    const i = +q.dataset.i;
+    q.querySelector('.namebtn').addEventListener('click', () => deckPicker(i));
+    q.querySelector('.statusbar').addEventListener('click', () => countersPanel(i));
+    q.querySelector('.cmdchip').addEventListener('click', () => cmdPanel(i));
+    q.querySelectorAll('.lifebtn').forEach(b => b.addEventListener('click', () => change(i, +b.dataset.d)));
+  });
+}
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const isKO = i => settings.autoKO && (players[i].life <= 0 || Math.max(...cmd[i]) >= 21 || players[i].counters.poison >= 10);
+const pending = {};
+function change(i, d){
+  const p = players[i];
+  p.life += d;
+  log.push({ i, name:p.name, d, total:p.life, t:new Date() });
+  const q = document.querySelector(`.quad[data-i="${i}"]`);
+  q.querySelector('.life').textContent = p.life;
+  q.classList.toggle('ko', isKO(i));
+  pending[i] = (pending[i] || 0) + d;
+  const el = q.querySelector('.delta');
+  el.textContent = (pending[i] > 0 ? '+' : '') + pending[i];
+  el.style.color = pending[i] > 0 ? '#00FF88' : '#f87171';
+  clearTimeout(pending['t'+i]);
+  pending['t'+i] = setTimeout(() => { pending[i] = 0; el.textContent = ''; }, 1500);
+  if (settings.vibrate && navigator.vibrate) navigator.vibrate(8);
+}
+
+/* ---------- Modal pequeno / Painel / Toast ---------- */
+function openModal(html){
+  $('#modal-body').innerHTML = html;
+  const m = $('#modal'); m.classList.remove('hidden'); m.classList.add('flex');
+  lucide.createIcons();
+}
+function closeModal(){ const m = $('#modal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+let panelClose = null;
+function openPanel(title, html, onClose){
+  panelClose = onClose || null;
+  $('#panel-title').textContent = title;
+  $('#panel-body').innerHTML = html;
+  const p = $('#panel'); p.classList.remove('hidden'); p.classList.add('flex');
+  lucide.createIcons();
+}
+function closePanel(){
+  const p = $('#panel'); p.classList.add('hidden'); p.classList.remove('flex');
+  if (panelClose){ const f = panelClose; panelClose = null; f(); }
+}
+let toastT;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.remove('hidden');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.add('hidden'), 2000);
+}
+const bigBtn = 'btn h-12 rounded-xl font-extrabold text-sm tracking-wider px-4';
+const titleH = t => `<h3 class="font-serif font-bold text-xl mb-4">${t}</h3>`;
+const sectionH = t => `<h4 class="text-xs uppercase tracking-[.2em] text-neon/80 mt-6 mb-1 flex items-center gap-3">${t}<span class="flex-1 h-px bg-white/10"></span></h4>`;
+const DOTS = ['#10B981','#EAB308','#EF4444','#3B82F6'];
+
+/* ---------- Sorteio de jogador / oponente ---------- */
+function pick(label){
+  closePanel(); sfx('roll');
+  const icon = $('#d20 svg'); icon.classList.remove('rolling'); void icon.getBoundingClientRect(); icon.classList.add('rolling');
+  const qs = document.querySelectorAll('.quad');
+  qs.forEach(q => q.classList.remove('picked'));
+  let n = 0, cur = -1;
+  const iv = setInterval(() => {
+    qs.forEach(x => x.style.filter = '');
+    cur = (cur + 1) % 4; qs[cur].style.filter = 'brightness(1.6)';
+    if (++n >= 10){
+      clearInterval(iv); qs.forEach(x => x.style.filter = '');
+      const win = Math.floor(Math.random() * 4);
+      qs[win].classList.add('picked');
+      toast(`🎲 ${label}: ${players[win].name}`);
+      setTimeout(() => qs[win].classList.remove('picked'), 2000);
+    }
+  }, 90);
+}
+
+/* ---------- Dados e Sorteios ---------- */
+const DIE_SHAPES = {
+  4:'12,3 22,21 2,21', 6:'4,4 20,4 20,20 4,20', 8:'12,2 21,8 21,16 12,22 3,16 3,8',
+  10:'12,2 21,9 18,21 6,21 3,9', 12:'12,2 20,7 22,16 12,22 2,16 4,7', 20:'12,2 21,7 21,17 12,22 3,17 3,7'
+};
+const dieSvg = n => `<svg viewBox="0 0 24 24" class="w-14 h-14"><polygon points="${DIE_SHAPES[n]}" fill="none" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/><text x="12" y="${n==4?17:15}" text-anchor="middle" font-size="${n>=10?9:10}" font-weight="700" font-family="Inter" fill="#fff">${n}</text></svg>`;
+let rolling = false;
+function animateOut(label, finalFn, ticks, tickFn){
+  if (rolling) return; rolling = true; sfx('roll');
+  const out = $('#dice-out'), lab = $('#dice-label');
+  lab.textContent = label; out.classList.remove('text-neon'); out.classList.add('text-white/60');
+  let n = 0;
+  const iv = setInterval(() => {
+    out.textContent = tickFn();
+    if (++n >= ticks){
+      clearInterval(iv); out.textContent = finalFn();
+      out.classList.add('text-neon'); out.classList.remove('text-white/60');
+      if (settings.vibrate && navigator.vibrate) navigator.vibrate(20);
+      rolling = false;
+    }
+  }, 55);
+}
+function roll(sides){
+  const r = () => 1 + Math.floor(Math.random() * sides);
+  animateOut(`d${sides}`, r, 12, r);
+}
+function rollCustom(){
+  const v = Math.max(2, Math.min(1000, parseInt($('#custom-n').value) || 7));
+  $('#custom-n').value = v; roll(v);
+}
+function flipCoin(){
+  const f = () => Math.random() < .5 ? 'CARA' : 'COROA';
+  animateOut('Moeda', f, 12, f);
+}
+function utilsPanel(){
+  const tile = (n) => `<button onclick="roll(${n})" class="btn flex flex-col items-center gap-1.5">
+      <span class="w-[84px] h-[84px] grid place-items-center rounded-2xl bg-surface2 active:bg-neon/20">${dieSvg(n)}</span>
+      <span class="text-xs text-white/70">Rolar d${n}</span></button>`;
+  openPanel('Dados e outros', `
+    <div class="space-y-2">
+      <button onclick="pick('Jogador')" class="btn w-full flex items-center gap-4 p-2 rounded-xl text-left active:bg-surface2">
+        <span class="w-12 h-12 grid place-items-center rounded-xl bg-surface2 text-neon"><i data-lucide="shuffle" class="w-6 h-6"></i></span>
+        <span><span class="block font-semibold">Jogador aleatório</span><span class="block text-xs text-white/50">Escolhe um jogador aleatoriamente.</span></span></button>
+      <button onclick="pick('Oponente')" class="btn w-full flex items-center gap-4 p-2 rounded-xl text-left active:bg-surface2">
+        <span class="w-12 h-12 grid place-items-center rounded-xl bg-surface2 text-neon"><i data-lucide="swords" class="w-6 h-6"></i></span>
+        <span><span class="block font-semibold">Oponente aleatório</span><span class="block text-xs text-white/50">Escolhe um oponente aleatoriamente.</span></span></button>
+    </div>
+    ${sectionH('Moedas e dados')}
+    <div class="text-center py-3 bg-surface rounded-2xl mt-3 border border-neon/20">
+      <p id="dice-label" class="text-xs tracking-widest uppercase text-white/50">Resultado</p>
+      <p id="dice-out" class="text-5xl font-extrabold h-16 grid place-items-center text-white/30">—</p>
+    </div>
+    <div class="flex justify-center gap-4 mt-5">
+      <button onclick="flipCoin()" class="btn flex flex-col items-center gap-1.5">
+        <span class="w-[84px] h-[84px] grid place-items-center rounded-2xl bg-surface2 active:bg-neon/20"><i data-lucide="circle-dollar-sign" class="w-12 h-12"></i></span>
+        <span class="text-xs text-white/70">Lançar moeda</span></button>
+      <div class="flex flex-col items-center gap-1.5">
+        <span class="w-[84px] h-[84px] flex flex-col items-center justify-center gap-1 rounded-2xl bg-surface2">
+          <span class="flex items-center gap-1 text-[11px] text-white/70">d<input id="custom-n" type="number" inputmode="numeric" min="2" max="1000" value="7" class="w-11 h-7 rounded-md bg-black text-center text-white font-bold outline-none focus:ring-1 focus:ring-neon"></span>
+          <button onclick="rollCustom()" class="btn font-extrabold text-sm text-neon px-3 py-1 rounded-lg active:bg-neon/20">Rolar</button>
+        </span>
+        <span class="text-xs text-white/70">Personalizado</span></div>
+    </div>
+    <div class="grid grid-cols-3 gap-y-5 justify-items-center mt-5">${[4,6,8,10,12,20].map(tile).join('')}</div>
+    <button onclick="closePanel()" class="${bigBtn} mx-auto mt-8 mb-4 flex items-center gap-2 bg-surface2"><i data-lucide="x-circle" class="w-5 h-5"></i>fechar</button>
+  `);
+}
+
+/* ---------- Histórico ---------- */
+const fmtDur = ms => {
+  const m = Math.round(ms / 60000);
+  if (m < 1) return '< 1 min';
+  const h = Math.floor(m / 60), r = m % 60;
+  return h ? `${h} hr${r ? ' ' + r + ' min' : ''}` : `${m} min`;
+};
+const fmtDate = d => new Date(d).toLocaleDateString('pt-BR', { day:'numeric', month:'short' }).replace('.', '') + ' às ' + new Date(d).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+function loadGames(){
+  try {
+    let g = JSON.parse(localStorage.getItem('gw_games') || 'null');
+    if (!g){
+      const now = Date.now(), day = 864e5;
+      g = [
+        { id:3, date:now - 2*day, dur:51*6e4, players:4, life:40, winner:'Lucas_Geek' },
+        { id:2, date:now - 9*day, dur:85*6e4, players:3, life:40, winner:null },
+        { id:1, date:now - 23*day, dur:14*6e4, players:4, life:40, winner:'Jogador 2' },
+      ];
+      localStorage.setItem('gw_games', JSON.stringify(g));
+    }
+    return g;
+  } catch(e){ return []; }
+}
+function saveGame(){
+  if (!log.length && !currentWinner) return;
+  const decks = store.get('gw_decks'); let touched = false;
+  players.forEach((p, i) => { const d = p.deck && decks.find(x => x.id === p.deck); if (d){ d.games = (d.games || 0) + 1; if (currentWinnerIdx === i) d.wins = (d.wins || 0) + 1; touched = true; } });
+  if (touched) store.set('gw_decks', decks);
+  const g = loadGames();
+  g.unshift({ id:(g.reduce((m,x) => Math.max(m, x.id), 0)) + 1, date:gameStart, dur:Date.now() - gameStart, players:4, life:START_LIFE, winner:currentWinner });
+  try { localStorage.setItem('gw_games', JSON.stringify(g.slice(0, 30))); } catch(e){}
+}
+function finishGame(){ saveGame(); closeModal(); closePanel(); setState('home'); }
+
+let histTab = 'cur';
+function historyPanel(){ openPanel('Histórico de Jogos', '<div id="hist"></div>'); renderHistory(); }
+function setTab(t){ histTab = t; renderHistory(); }
+function renderHistory(){
+  const tab = (k, label) => `<button onclick="setTab('${k}')" class="flex-1 h-11 rounded-lg text-sm font-semibold ${histTab===k ? 'bg-surface2 text-white shadow-[0_0_0_1px_rgba(0,255,136,.5)]' : 'text-white/50'}">${label}</button>`;
+  let body = '';
+  if (histTab === 'cur'){
+    const rows = log.map(e => `
+      <li class="flex items-center gap-3 py-2.5 px-1 text-sm border-b border-white/5">
+        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${DOTS[e.i]}"></span>
+        <span class="flex-1 truncate">${esc(e.name)} ${e.total <= 0 ? '💀' : ''}</span>
+        <span class="px-2 py-0.5 rounded border font-bold ${e.d>0 ? 'text-neon border-neon/40 bg-neon/10' : 'text-red-400 border-red-400/40 bg-red-400/10'}">${e.d>0?'+':''}${e.d}</span>
+        <span class="text-white/30">→</span>
+        <span class="w-8 text-right font-extrabold">${e.total}</span>
+      </li>`).join('');
+    body = `
+      <div class="flex items-center justify-between text-xs text-white/50 mb-2 px-1"><span>${log.length} alterações</span><span>${fmtDur(Date.now() - gameStart)}</span></div>
+      <ul id="hist-list" class="max-h-[52vh] overflow-y-auto bg-surface rounded-xl px-3">${rows || '<li class="py-6 text-center text-white/40 text-sm">Nenhuma alteração ainda.</li>'}</ul>
+      <p class="text-center text-sm mt-4 ${currentWinner ? 'text-neon' : 'text-white/40'}">${currentWinner ? '🏆 Vencedor: ' + esc(currentWinner) : 'Sem vencedor definido'}</p>
+      <div class="flex gap-3 mt-3">
+        <button onclick="winnerModal()" class="${bigBtn} flex-1 bg-surface2 flex items-center justify-center gap-2"><i data-lucide="trophy" class="w-4 h-4"></i>Definir vencedor</button>
+        <button onclick="resetModal()" class="${bigBtn} flex-1 border border-red-400/60 text-red-400 flex items-center justify-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>Reiniciar</button>
+      </div>`;
+  } else {
+    const games = loadGames();
+    body = games.map(g => `
+      <article class="bg-surface rounded-xl p-4 mb-3 border-l-4 border-neon/60">
+        <div class="flex justify-between items-start">
+          <div><h4 class="font-bold">Partida ${g.id}</h4><p class="text-sm text-white/50">${fmtDate(g.date)}</p></div>
+          <span class="text-xs ${g.winner ? 'text-neon' : 'text-white/40'}">${g.winner ? '🏆 ' + esc(g.winner) : 'Sem vencedor'}</span>
+        </div>
+        <p class="flex gap-4 text-sm text-white/70 mt-2">
+          <span class="flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i>${g.players}</span>
+          <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4"></i>${g.life}</span>
+          <span class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i>${fmtDur(g.dur)}</span>
+        </p>
+      </article>`).join('') || '<p class="text-center text-white/40 py-8 text-sm">Nenhuma partida salva.</p>';
+  }
+  $('#hist').innerHTML = `<div class="flex gap-1 p-1 bg-surface rounded-xl mb-4">${tab('cur','Jogo Atual')}${tab('prev','Jogos Anteriores')}</div>${body}`;
+  lucide.createIcons();
+  const l = $('#hist-list'); if (l) l.scrollTop = l.scrollHeight;
+}
+function winnerModal(){
+  openModal(`${titleH('Quem venceu?')}
+    <div class="grid grid-cols-2 gap-3">${players.map((p,i) => `
+      <button onclick="setWinner(${i})" class="btn h-14 rounded-xl bg-surface2 font-semibold flex items-center justify-center gap-2 truncate px-2"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${DOTS[i]}"></span>${esc(p.name)}</button>`).join('')}</div>
+    <button class="${bigBtn} w-full mt-3 bg-transparent text-white/60" onclick="closeModal()">CANCELAR</button>`);
+}
+function setWinner(i){ currentWinnerIdx = i; currentWinner = players[i].name; closeModal(); if (!$('#panel').classList.contains('hidden')) renderHistory(); toast('🏆 ' + currentWinner); }
+function resetModal(){
+  openModal(`${titleH('Reiniciar partida?')}
+    <p class="text-white/70 text-sm mb-5">A vida volta para ${START_LIFE} e o histórico atual será apagado.</p>
+    <div class="flex gap-3">
+      <button class="${bigBtn} flex-1 bg-surface2" onclick="closeModal()">CANCELAR</button>
+      <button class="${bigBtn} flex-1 bg-red-500 text-white" onclick="newGame();renderGrid();closeModal();renderHistory()">REINICIAR</button>
+    </div>`);
+}
+
+/* ---------- Configurações da mesa ---------- */
+function settingsPanel(){
+  const keep = $('#panel-body').scrollTop;
+  const tg = (key, label, desc) => `
+    <button role="switch" aria-checked="${settings[key]}" onclick="toggle('${key}')" class="w-full flex items-center gap-3 py-3 text-left">
+      <span class="flex-1"><span class="block font-semibold">${label}</span><span class="block text-xs text-white/50">${desc}</span></span>
+      <span class="sw ${settings[key] ? 'on' : ''}"></span>
+    </button>`;
+  openPanel('Configurações da Mesa', `
+    ${sectionH('Vida inicial')}
+    <div class="flex gap-2 mt-3">${[20, 30, 40].map(n => `<button onclick="setStartLife(${n})" class="btn flex-1 h-12 rounded-xl font-extrabold ${START_LIFE === n ? 'bg-neon text-black shadow-[0_0_14px_rgba(0,255,136,.4)]' : 'bg-surface2 text-white/70'}">${n} HP</button>`).join('')}</div>
+    <button onclick="newGame();renderGrid();closePanel();toast('Partida reiniciada com ' + START_LIFE + ' HP')" class="btn w-full h-12 mt-2 rounded-xl border border-red-400/60 text-red-400 font-extrabold text-xs tracking-wider">RESETAR PARTIDA COM ${START_LIFE} HP</button>
+    ${sectionH('Regras')}
+    ${tg('autoKO', 'Auto-KO', 'Elimina por vida 0, veneno 10 (Infect) ou 21 de dano de comandante')}
+    ${tg('cmdLoss', 'Perda de vida por dano de Comandante', 'Dano de comandante também reduz a vida')}
+    ${tg('timer', 'Temporizador de turno', 'Mostra turno e tempo; toque no marcador para passar o turno')}
+    ${sectionH('Dispositivo')}
+    ${tg('camera', 'Modo câmera', 'Inverter jogadores do topo: todos na mesma direção')}
+    ${tg('vibrate', 'Vibração ao toque', 'Feedback tátil ao mudar a vida')}
+    ${tg('wake', 'Manter tela ligada', 'Evita que a tela apague durante a partida')}
+    ${sectionH('Decks da mesa')}
+    <div class="space-y-2 mt-3">${players.map((p,i) => `
+      <button onclick="deckPicker(${i})" class="btn w-full flex items-center gap-3 bg-surface2 rounded-xl px-3 h-12 text-left">
+        <span class="w-2.5 h-2.5 rounded-full" style="background:${DOTS[i]}"></span>
+        <span class="flex-1 truncate text-sm">${esc(p.name)}</span>
+        <span class="text-xs ${p.deck ? 'text-neon' : 'text-white/40'}">${p.deck ? 'Deck ✓' : 'Selecionar deck'}</span></button>`).join('')}</div>
+    ${sectionH('Nomes dos jogadores')}
+    <div class="space-y-2 mt-3 mb-6">${players.map((p,i) => `
+      <label class="flex items-center gap-3 text-sm">
+        <span class="w-2.5 h-2.5 rounded-full" style="background:${DOTS[i]}"></span>
+        <input value="${esc(p.name)}" maxlength="16" oninput="setName(${i}, this.value)" class="flex-1 bg-surface2 rounded-lg px-3 h-12 text-white outline-none focus:ring-1 focus:ring-neon">
+      </label>`).join('')}</div>
+  `, renderGrid);
+  $('#panel-body').scrollTop = keep;
+}
+function persistSettings(){
+  try { localStorage.setItem('gw_settings', JSON.stringify(settings)); } catch(e){}
+  if (session.uid) saveProfile({ table:{ ...settings } });
+}
+function setStartLife(n){
+  START_LIFE = n; settings.startLife = n; persistSettings();
+  const cb = panelClose; settingsPanel(); panelClose = cb;
+}
+function setName(i, v){ players[i].name = v.trim() || `Jogador ${i+1}`; }
+function toggle(k){
+  settings[k] = !settings[k];
+  persistSettings();
+  if (k === 'wake') applyWake();
+  if (k === 'timer') updateTurn();
+  const cb = panelClose; settingsPanel(); panelClose = cb;
+  if (k === 'camera' || k === 'autoKO') renderGrid();
+}
+
+/* ---------- Contadores e status ---------- */
+function chipsHtml(i){
+  const c = players[i].counters, a = [];
+  if (c.monarch) a.push('👑');
+  if (c.initiative) a.push('⚔️');
+  if (c.blessing) a.push('🏙️');
+  if (c.poison > 0) a.push('🧪 ' + c.poison);
+  if (c.energy > 0) a.push('⚡ ' + c.energy);
+  if (c.tax > 0) a.push('📜 +' + c.tax);
+  if (c.rad > 0) a.push('☢️ ' + c.rad);
+  if (c.exp > 0) a.push('⭐ ' + c.exp);
+  if (c.treasure > 0) a.push('💰 ' + c.treasure);
+  return a.length ? a.map(t => `<span class="chip">${t}</span>`).join('') : '<span class="chip text-white/60">+ Status</span>';
+}
+function updateStatus(){
+  document.querySelectorAll('.quad').forEach(q => {
+    const i = +q.dataset.i;
+    q.querySelector('.statusbar').innerHTML = chipsHtml(i);
+    q.classList.toggle('ko', isKO(i));
+  });
+}
+const STEP = { tax:2 };
+function ctr(i, key, d){
+  const c = players[i].counters, st = (STEP[key] || 1) * d;
+  c[key] = Math.max(0, c[key] + st);
+  if (key === 'poison' && c.poison >= 10 && settings.autoKO) toast('☠️ ' + players[i].name + ' eliminado por veneno');
+  updateStatus(); countersPanel(i);
+}
+function flag(i, key){
+  const c = players[i].counters, on = !c[key];
+  if (key === 'monarch') players.forEach(p => p.counters.monarch = false);
+  c[key] = on;
+  updateStatus(); countersPanel(i);
+}
+function toggleDay(i){ isDay = !isDay; countersPanel(i); }
+function countersPanel(i){
+  const keep = $('#panel-body').scrollTop, c = players[i].counters;
+  const flagTile = (key, icon, label) => `
+    <button onclick="flag(${i},'${key}')" class="btn rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 h-[112px] ${c[key] ? 'bg-neon/15 shadow-[0_0_0_1px_#00FF88,0_0_16px_rgba(0,255,136,.3)] text-neon' : 'bg-surface2 text-white/80'}">
+      <i data-lucide="${icon}" class="w-8 h-8"></i><span class="text-sm font-semibold">${label}</span>
+      <span class="text-[11px] ${c[key] ? 'text-neon' : 'text-white/40'}">${c[key] ? 'Ativo' : 'Inativo'}</span></button>`;
+  const ctrTile = (key, icon, label, step) => `
+    <div class="rounded-2xl p-3 flex flex-col items-center gap-1 h-[112px] ${c[key] > 0 ? 'bg-neon/10 shadow-[0_0_0_1px_rgba(0,255,136,.5)]' : 'bg-surface2'}">
+      <span class="flex items-center gap-1.5 text-sm font-semibold ${c[key] > 0 ? 'text-neon' : 'text-white/80'}"><i data-lucide="${icon}" class="w-4 h-4"></i>${label}</span>
+      <span class="flex items-center gap-2 flex-1">
+        <button onclick="ctr(${i},'${key}',-1)" class="btn w-11 h-11 rounded-xl bg-black/40 text-2xl" aria-label="Diminuir ${label}">−</button>
+        <span class="w-9 text-center text-2xl font-extrabold tabular-nums">${key === 'tax' && c[key] > 0 ? '+' : ''}${c[key]}</span>
+        <button onclick="ctr(${i},'${key}',1)" class="btn w-11 h-11 rounded-xl bg-neon/90 text-black text-2xl" aria-label="Aumentar ${label}">+</button>
+      </span>
+      ${step ? `<span class="text-[10px] text-white/40">passo ${step}</span>` : ''}
+    </div>`;
+  openPanel('Contadores · ' + players[i].name, `
+    <div class="grid grid-cols-2 gap-3 mt-4">
+      ${flagTile('monarch', 'crown', 'Monarca')}
+      ${flagTile('initiative', 'swords', 'Iniciativa')}
+      ${ctrTile('poison', 'flask-conical', 'Veneno')}
+      ${ctrTile('energy', 'zap', 'Energia')}
+      ${ctrTile('tax', 'castle', 'Taxa Comandante', '+2 / −2')}
+      ${ctrTile('treasure', 'coins', 'Tesouro')}
+      ${ctrTile('rad', 'radiation', 'Radiação')}
+      ${flagTile('blessing', 'landmark', 'Bênção da Cidade')}
+      <button onclick="toggleDay(${i})" class="btn rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 h-[112px] bg-surface2 ${isDay ? 'text-amber-300' : 'text-indigo-300'}">
+        <i data-lucide="${isDay ? 'sun' : 'moon'}" class="w-8 h-8"></i><span class="text-sm font-semibold">${isDay ? 'Dia' : 'Noite'}</span>
+        <span class="text-[11px] text-white/40">Global da mesa</span></button>
+      ${ctrTile('exp', 'star', 'Experiência')}
+    </div>
+    <p class="text-xs text-white/40 mt-4 text-center">${settings.autoKO ? 'Veneno 10 elimina o jogador (Auto-KO ligado).' : 'Auto-KO desligado: veneno 10 não elimina.'}</p>
+    <button onclick="closePanel()" class="${bigBtn} mx-auto mt-5 flex items-center gap-2 bg-surface2"><i data-lucide="x-circle" class="w-5 h-5"></i>fechar</button>`);
+  $('#panel-body').scrollTop = keep;
+}
+
+/* ---------- Conta / Nuvem (Firebase) ---------- */
+const session = { uid:null, user:null, data:{}, profile:{} };
+const CLOUD_KEYS = ['gw_decks', 'gw_have', 'gw_want'];
+const pushT = {};
+function cloudPush(k, v){
+  clearTimeout(pushT[k]);
+  pushT[k] = setTimeout(async () => {
+    const c = window.cloud; if (!c || !session.uid) return;
+    try {
+      if (k === 'gw_decks') await c.saveDecks(session.uid, v);
+      else await c.saveList(session.uid, k.replace('gw_', ''), v);
+    } catch(e){ console.error(e); toast('⚠️ Falha ao sincronizar com a nuvem'); }
+  }, 400);
+}
+const authErr = e => ({
+  'auth/invalid-credential':'E-mail ou senha incorretos.', 'auth/wrong-password':'E-mail ou senha incorretos.', 'auth/user-not-found':'E-mail ou senha incorretos.',
+  'auth/email-already-in-use':'Este e-mail já tem uma conta.', 'auth/weak-password':'A senha precisa de pelo menos 6 caracteres.',
+  'auth/invalid-email':'E-mail inválido.', 'auth/missing-password':'Informe a senha.', 'auth/popup-closed-by-user':'Login cancelado.',
+  'auth/operation-not-allowed':'Este método de login não está ativado no Firebase Console.', 'auth/network-request-failed':'Sem conexão com a internet.',
+  'auth/unauthorized-domain':'Domínio não autorizado no Firebase (use localhost ou adicione o domínio).', 'auth/too-many-requests':'Muitas tentativas. Tente mais tarde.',
+  'auth/operation-not-supported-in-this-environment':'Login com Google não funciona abrindo o arquivo direto. Use um servidor local (http://localhost).'
+}[e && e.code] || 'Não foi possível concluir. Tente novamente.');
+
+window.onCloudAuth = async function(user){
+  if (user){
+    session.uid = user.uid; session.user = user; session.data = {}; session.profile = {};
+    toast('☁️ Sincronizando…');
+    try {
+      const cloudData = await window.cloud.loadAll(user.uid);
+      session.profile = cloudData.profile || {};
+      if (session.profile.table){ Object.assign(settings, session.profile.table); START_LIFE = [20, 30, 40].includes(settings.startLife) ? settings.startLife : 40; applyWake(); }
+      if (!Object.keys(session.profile).length && Object.keys(localProfile).length){ session.profile = { ...localProfile }; cloudPushProfile(session.profile); }
+      const local = Object.fromEntries(CLOUD_KEYS.map(k => [k, (() => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch(e){ return []; } })()]));
+      const cloudEmpty = CLOUD_KEYS.every(k => !(cloudData[k] || []).length);
+      const localHas = CLOUD_KEYS.some(k => local[k].length);
+      if (cloudEmpty && localHas){
+        CLOUD_KEYS.forEach(k => { session.data[k] = local[k]; if (local[k].length) cloudPush(k, local[k]); });
+        toast('☁️ Dados locais enviados para a nuvem');
+      } else {
+        CLOUD_KEYS.forEach(k => session.data[k] = cloudData[k] || []);
+        toast('☁️ Dados carregados da nuvem');
+      }
+    } catch(e){ console.error(e); session.data = {}; toast('⚠️ Não foi possível ler a nuvem'); }
+  } else { session.uid = null; session.user = null; session.data = {}; session.profile = {}; }
+  const ids = new Set(store.get('gw_decks').map(d => d.id));
+  players.forEach(p => { if (p.deck && !ids.has(p.deck)) clearDeck(p); });
+  if (state === 'game') renderGrid();
+  renderAuthUI();
+  const t = $('#panel-title');
+  if (user && t && /Conta|Entrar/.test(t.textContent)) closePanel();
+};
+const displayNick = u => u ? (u.displayName || (u.email || '').split('@')[0] || 'Jogador') : 'Lucas_Geek';
+function renderAuthUI(){
+  const u = session.user;
+  $('#hdr-login').classList.toggle('hidden', !!u);
+  $('#hdr-bell').classList.toggle('hidden', !u);
+  $('#hdr-avatar').classList.toggle('hidden', !u);
+  if (u){
+    const photo = u.photoURL;
+    $('#hdr-avatar').innerHTML = photo
+      ? `<img src="${esc(photo)}" referrerpolicy="no-referrer" alt="Avatar" class="w-9 h-9 rounded-full object-cover ring-2 ring-mint"><span class="absolute bottom-1.5 right-1.5 w-3 h-3 rounded-full bg-neon ring-2 ring-bg"></span>`
+      : `<span class="w-9 h-9 rounded-full grid place-items-center bg-surface2 ring-2 ring-mint font-extrabold text-neon">${esc(displayNick(u)[0].toUpperCase())}</span><span class="absolute bottom-1.5 right-1.5 w-3 h-3 rounded-full bg-neon ring-2 ring-bg"></span>`;
+  }
+  $('#prof-name').textContent = displayNick(u);
+  renderProfile();
+}
+function avatarClick(){ session.user ? accountPanel() : authPanel(); }
+
+let authMode = 'in';
+function authPanel(mode){
+  if (mode) authMode = mode;
+  const c = window.cloud, ok = c && c.enabled, up = authMode === 'up';
+  const tab = (k, l) => `<button onclick="authPanel('${k}')" class="flex-1 h-11 rounded-lg text-sm font-semibold ${authMode===k ? 'bg-surface2 text-neon shadow-[0_0_0_1px_rgba(0,255,136,.5)]' : 'text-white/50'}">${l}</button>`;
+  const inp = (id, type, ph, extra = '') => `<input id="${id}" type="${type}" placeholder="${ph}" ${extra} class="w-full bg-surface2 rounded-xl px-4 h-12 outline-none focus:ring-1 focus:ring-neon">`;
+  openPanel(up ? 'Criar Conta' : 'Entrar', `
+    ${!ok ? `<div class="mt-4 rounded-xl border border-amber-400/40 bg-amber-400/10 p-3 text-xs text-amber-200">Firebase ainda não configurado (faltam <b>apiKey</b> e <b>appId</b>). O app segue funcionando offline com os dados salvos neste aparelho.</div>` : ''}
+    <div class="flex gap-1 p-1 bg-surface rounded-xl mt-4">${tab('in','Entrar')}${tab('up','Criar Conta')}</div>
+    <form onsubmit="submitAuth(event)" class="space-y-3 mt-4">
+      ${up ? inp('au-nick', 'text', 'Nick (ex: Lucas_Geek)', 'maxlength="20" autocomplete="nickname"') : ''}
+      ${inp('au-email', 'email', 'E-mail', 'autocomplete="email" required')}
+      ${inp('au-pass', 'password', 'Senha', `autocomplete="${up ? 'new-password' : 'current-password'}" required minlength="6"`)}
+      <p id="au-err" class="text-sm text-red-400 min-h-[20px]"></p>
+      <button id="au-submit" ${ok ? '' : 'disabled'} class="btn w-full h-14 rounded-xl bg-neon text-black font-extrabold tracking-wider disabled:opacity-40">${up ? 'CRIAR CONTA' : 'ENTRAR'}</button>
+    </form>
+    <div class="flex items-center gap-3 my-5 text-xs text-white/30"><span class="flex-1 h-px bg-white/10"></span>ou<span class="flex-1 h-px bg-white/10"></span></div>
+    <button onclick="googleLogin()" ${ok ? '' : 'disabled'} class="btn w-full h-14 rounded-xl bg-white text-black font-bold flex items-center justify-center gap-3 disabled:opacity-40">
+      <svg viewBox="0 0 48 48" class="w-5 h-5"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.4 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7a14.500 14.500 0 010-9.400l-7.900-6.100a24 24 0 000 21.600l7.900-6.100z"/><path fill="#34A853" d="M24 48c6.500 0 11.900-2.100 15.900-5.800l-7.600-5.900c-2.100 1.400-4.900 2.300-8.300 2.300-6.300 0-11.600-4.100-13.500-9.800l-7.900 6.100C6.500 42.600 14.600 48 24 48z"/></svg>
+      Entrar com Google</button>
+    <p class="text-xs text-white/40 text-center mt-5">Sem conta? Feche esta tela e use o app normalmente: seus dados ficam salvos neste aparelho.</p>`);
+}
+async function submitAuth(e){
+  e.preventDefault();
+  const err = $('#au-err'), btn = $('#au-submit'); err.textContent = ''; btn.disabled = true;
+  try {
+    const email = $('#au-email').value.trim(), pass = $('#au-pass').value;
+    if (authMode === 'up') await window.cloud.signUp(email, pass, ($('#au-nick') || {}).value || '');
+    else await window.cloud.signIn(email, pass);
+  } catch(ex){ err.textContent = authErr(ex); btn.disabled = false; }
+}
+async function googleLogin(){
+  try { await window.cloud.google(); } catch(ex){ const el = $('#au-err'); if (el) el.textContent = authErr(ex); else toast(authErr(ex)); }
+}
+function accountPanel(){
+  const u = session.user; if (!u) return authPanel();
+  const photo = u.photoURL ? `<img src="${esc(u.photoURL)}" referrerpolicy="no-referrer" class="w-20 h-20 rounded-full object-cover ring-2 ring-mint">` : `<span class="w-20 h-20 rounded-full grid place-items-center bg-surface2 ring-2 ring-mint text-3xl font-extrabold text-neon">${esc(displayNick(u)[0].toUpperCase())}</span>`;
+  openPanel('Conta', `
+    <div class="flex flex-col items-center text-center mt-8">${photo}
+      <h3 class="font-serif font-bold text-2xl mt-4">${esc(displayNick(u))}</h3>
+      <p class="text-sm text-white/50">${esc(u.email || '')}</p>
+      <p class="mt-4 text-xs px-3 py-1.5 rounded-full bg-neon/10 text-neon border border-neon/30">☁️ Decks e coleção sincronizados</p></div>
+    <button onclick="doLogout()" class="btn w-full h-14 mt-10 rounded-xl border border-red-400/60 text-red-400 font-extrabold tracking-wider">SAIR DA CONTA</button>`);
+}
+async function doLogout(){ closePanel(); try { await window.cloud.logout(); toast('Você saiu da conta'); } catch(e){} }
+
+/* ---------- Perfil: capa, avatar, deck ativo ---------- */
+const DEFAULT_COVER = 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200&q=75';
+const DEFAULT_AVATAR = 'https://i.pravatar.cc/160?img=12';
+let localProfile = (() => { try { return JSON.parse(localStorage.getItem('gw_profile') || '{}'); } catch(e){ return {}; } })();
+const prof = () => session.uid ? session.profile : localProfile;
+let profPushT;
+function cloudPushProfile(p){
+  clearTimeout(profPushT);
+  profPushT = setTimeout(async () => {
+    const c = window.cloud; if (!c || !session.uid) return;
+    try { await c.saveProfile(session.uid, p); } catch(e){ console.error(e); toast('⚠️ Falha ao sincronizar o perfil'); }
+  }, 400);
+}
+function saveProfile(patch){
+  const p = prof(); Object.assign(p, patch);
+  if (session.uid) cloudPushProfile(p);
+  else { try { localStorage.setItem('gw_profile', JSON.stringify(p)); } catch(e){} }
+  renderProfile();
+}
+function renderProfile(){
+  const p = prof(), u = session.user;
+  $('#prof-cover').style.backgroundImage = `url('${p.cover || DEFAULT_COVER}')`;
+  $('#prof-avatar').src = p.avatar || (u && u.photoURL) || DEFAULT_AVATAR;
+  const d = store.get('gw_decks').find(x => x.id === p.activeDeck);
+  $('#prof-deck').textContent = d ? '🃏 Deck ativo: ' + d.name : 'Nenhum deck ativo';
+}
+function coverModal(){
+  openModal(`${titleH('Alterar capa')}
+    <label class="block text-xs uppercase tracking-widest text-white/50">URL da imagem
+      <input id="cv-url" oninput="coverPrev(this.value)" placeholder="https://..." value="${esc(prof().cover || '')}" class="mt-1.5 w-full bg-surface2 rounded-xl px-4 h-12 text-sm normal-case tracking-normal text-white outline-none focus:ring-1 focus:ring-neon"></label>
+    <div class="text-center text-xs text-white/30 my-3">ou busque uma carta</div>
+    <div class="flex gap-2">
+      <input id="cv-card" placeholder="Ex: Korvold, Fae-Cursed King" onkeydown="if(event.key==='Enter')coverSearch()" class="flex-1 min-w-0 bg-surface2 rounded-xl px-4 h-12 text-sm outline-none focus:ring-1 focus:ring-neon">
+      <button onclick="coverSearch()" class="btn h-12 px-4 rounded-xl bg-surface2 text-neon font-bold text-sm">Buscar</button>
+    </div>
+    <div id="cv-prev" class="h-24 rounded-xl bg-surface2 bg-cover bg-center mt-4" style="background-image:url('${esc(prof().cover || DEFAULT_COVER)}')"></div>
+    <p id="cv-stat" class="text-xs text-white/40 mt-2 min-h-[16px]"></p>
+    <div class="flex gap-2 mt-3">
+      <button onclick="saveProfile({cover:null});closeModal()" class="${bigBtn} bg-transparent text-white/60 px-3">PADRÃO</button>
+      <button onclick="closeModal()" class="${bigBtn} flex-1 bg-surface2">CANCELAR</button>
+      <button onclick="coverSave()" class="${bigBtn} flex-1 bg-neon text-black">SALVAR</button>
+    </div>`);
+}
+function coverPrev(v){ v = v.trim(); if (/^https?:\/\//.test(v)) $('#cv-prev').style.backgroundImage = `url('${v.replace(/'/g, '%27')}')`; }
+async function coverSearch(){
+  const q = $('#cv-card').value.trim(), st = $('#cv-stat'); if (q.length < 2) return;
+  st.textContent = 'Buscando no Scryfall…';
+  try {
+    const r = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + encodeURIComponent(q));
+    if (!r.ok) throw 0;
+    const c = await r.json(), face = c.image_uris ? c : c.card_faces[0], url = face.image_uris.art_crop;
+    $('#cv-url').value = url; coverPrev(url); st.textContent = '✓ ' + c.name;
+  } catch(e){ st.textContent = 'Carta não encontrada'; }
+}
+function coverSave(){
+  const v = $('#cv-url').value.trim();
+  if (!v){ saveProfile({ cover:null }); closeModal(); return; }
+  if (!/^https?:\/\//.test(v)){ toast('Use um link que comece com http(s)://'); return; }
+  saveProfile({ cover:v }); closeModal();
+}
+function avatarModal(){
+  openModal(`${titleH('Alterar avatar')}
+    <input id="av-url" placeholder="URL da imagem (https://...)" value="${esc(prof().avatar || '')}" class="w-full bg-surface2 rounded-xl px-4 h-12 text-sm outline-none focus:ring-1 focus:ring-neon">
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveProfile({avatar:null});closeModal()" class="${bigBtn} bg-transparent text-white/60 px-3">PADRÃO</button>
+      <button onclick="closeModal()" class="${bigBtn} flex-1 bg-surface2">CANCELAR</button>
+      <button onclick="avatarSave()" class="${bigBtn} flex-1 bg-neon text-black">SALVAR</button>
+    </div>`);
+}
+function avatarSave(){
+  const v = $('#av-url').value.trim();
+  if (v && !/^https?:\/\//.test(v)){ toast('Use um link que comece com http(s)://'); return; }
+  saveProfile({ avatar:v || null }); closeModal();
+}
+function setActiveDeck(id){ saveProfile({ activeDeck:id }); decksPanel(); toast('✓ Deck ativo definido'); }
+const winrate = d => d.games ? Math.round((d.wins || 0) / d.games * 100) + '%' : '—';
+
+/* ---------- Configurações do App / Conta ---------- */
+function appSettingsPanel(){
+  const keep = $('#panel-body').scrollTop, u = session.user, cloudOn = window.cloud && window.cloud.enabled, p = prof();
+  const val = { tradeAlerts: !!p.tradeAlerts, sounds: p.sounds !== false };
+  const tg = (key, label, desc) => `
+    <button role="switch" aria-checked="${val[key]}" onclick="appToggle('${key}')" class="w-full flex items-center gap-3 py-3 text-left">
+      <span class="flex-1"><span class="block font-semibold">${label}</span><span class="block text-xs text-white/50">${desc}</span></span>
+      <span class="sw ${val[key] ? 'on' : ''}"></span></button>`;
+  const link = (icon, label, fn) => `
+    <button onclick="${fn}" class="btn w-full flex items-center gap-3 py-3 text-left">
+      <span class="w-10 h-10 grid place-items-center rounded-xl bg-surface2 text-neon"><i data-lucide="${icon}" class="w-5 h-5"></i></span>
+      <span class="flex-1 font-semibold">${label}</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/30"></i></button>`;
+  const account = u ? `
+      <div class="flex items-center gap-3 bg-surface rounded-xl p-3 mt-3">
+        <span class="w-11 h-11 grid place-items-center rounded-full bg-neon/10 text-neon"><i data-lucide="user-check" class="w-5 h-5"></i></span>
+        <span class="flex-1 min-w-0"><span class="block font-semibold truncate">${esc(displayNick(u))}</span><span class="block text-xs text-white/50 truncate">${esc(u.email || '')}</span></span></div>
+      <p class="flex items-center gap-2 text-xs text-neon mt-3 px-1"><span class="w-2 h-2 rounded-full bg-neon shadow-[0_0_8px_#00FF88]"></span>Dados sincronizados na Nuvem</p>
+      <button onclick="doLogout()" class="btn w-full h-12 mt-3 rounded-xl border border-red-400/60 text-red-400 font-extrabold text-sm tracking-wider">SAIR DA CONTA</button>` : `
+      <div class="flex items-center gap-3 bg-surface rounded-xl p-3 mt-3">
+        <span class="w-11 h-11 grid place-items-center rounded-full bg-surface2 text-white/60"><i data-lucide="user" class="w-5 h-5"></i></span>
+        <span class="flex-1"><span class="block font-semibold">Modo convidado</span><span class="block text-xs text-white/50">Decks e listas ficam salvos só neste aparelho.</span></span></div>
+      <p class="flex items-center gap-2 text-xs text-white/40 mt-3 px-1"><span class="w-2 h-2 rounded-full bg-white/30"></span>${cloudOn ? 'Sem sincronização na nuvem' : 'Nuvem indisponível'}</p>
+      <button onclick="authPanel('in')" class="btn w-full h-12 mt-3 rounded-xl bg-neon text-black font-extrabold text-sm tracking-wider">ENTRAR / CRIAR CONTA</button>`;
+  openPanel('Configurações do App', `
+    ${sectionH('Conta & Sincronização')}${account}
+    ${sectionH('Notificações e Social')}
+    ${tg('tradeAlerts', 'Alertas de Troca (HAVE / WANT)', 'Avisar quando um jogador do grupo procurar uma carta que você tem. A preferência já fica salva; os avisos chegam com o Radar de Matches.')}
+    ${sectionH('Personalização Visual')}
+    ${link('image', 'Alterar Foto de Capa', 'coverModal()')}
+    ${link('circle-user', 'Alterar Avatar', 'avatarModal()')}
+    ${tg('sounds', 'Efeitos Sonoros', 'Sons ao tocar nos botões e rolar dados')}
+    <p class="text-center text-[11px] text-white/25 mt-8 mb-2">GeekWeeD · MVP</p>
+  `);
+  $('#panel-body').scrollTop = keep;
+}
+function appToggle(k){
+  const p = prof(), cur = k === 'sounds' ? p.sounds !== false : !!p[k];
+  saveProfile({ [k]: !cur });
+  if (k === 'sounds' && !cur) sfx('tap');
+  appSettingsPanel();
+}
+
+/* ---------- Efeitos sonoros ---------- */
+let actx = null;
+function beep(freq, dur = .05, vol = .06, delay = 0){
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime + delay, o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'triangle'; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + dur);
+  } catch(e){}
+}
+function sfx(kind){
+  if (prof().sounds === false) return;
+  if (kind === 'roll'){ for (let i = 0; i < 9; i++) beep(300 + Math.random() * 500, .04, .05, i * .06); beep(880, .12, .07, .6); }
+  else beep(620, .04, .05);
+}
+document.addEventListener('click', e => { if (e.target.closest('.btn, .lifebtn, .slice, .cmdchip, .statusbar')) sfx('tap'); });
+
+/* ---------- Dano de comandante ---------- */
+function cmdPanel(i){
+  const keep = $('#panel-body').scrollTop;
+  const rows = players.map((o, j) => j === i ? '' : `
+    <div class="flex items-center gap-3 py-3 border-b border-white/5">
+      <span class="w-3 h-3 rounded-full shrink-0" style="background:${DOTS[j]}"></span>
+      <span class="flex-1 min-w-0"><span class="block font-semibold truncate">${esc(o.name)}</span>
+        <span class="block text-xs ${cmd[i][j] >= 21 ? 'text-red-400' : 'text-white/40'}">${cmd[i][j] >= 21 ? 'Dano letal (21)' : 'Letal em 21'}</span></span>
+      <button onclick="cmdChange(${i},${j},-1)" class="btn w-14 h-14 rounded-xl bg-surface2 text-3xl font-light" aria-label="Diminuir">−</button>
+      <span class="w-12 text-center text-3xl font-extrabold tabular-nums ${cmd[i][j] >= 21 ? 'text-red-400' : ''}">${cmd[i][j]}</span>
+      <button onclick="cmdChange(${i},${j},1)" class="btn w-14 h-14 rounded-xl bg-neon/90 text-black text-3xl font-light" aria-label="Aumentar">+</button>
+    </div>`).join('');
+  openPanel('Dano de Comandante', `
+    <p class="mt-4 text-sm text-white/60">Dano recebido por <b class="text-white">${esc(players[i].name)}</b> de cada comandante.
+      ${settings.cmdLoss ? '<span class="text-neon">Também reduz a vida.</span>' : '<span class="text-white/40">Não reduz a vida (ajuste em Configurações).</span>'}</p>
+    <div class="mt-2">${rows}</div>
+    <button onclick="closePanel()" class="${bigBtn} mx-auto mt-8 flex items-center gap-2 bg-surface2"><i data-lucide="x-circle" class="w-5 h-5"></i>fechar</button>`);
+  $('#panel-body').scrollTop = keep;
+}
+function cmdChange(i, j, d){
+  if (cmd[i][j] + d < 0) return;
+  cmd[i][j] += d;
+  if (settings.cmdLoss) change(i, -d);
+  const q = document.querySelector(`.quad[data-i="${i}"]`);
+  const m = Math.max(...cmd[i]);
+  const n = q.querySelector('.chipn'); n.textContent = m; n.classList.toggle('text-red-400', m >= 21);
+  q.classList.toggle('ko', isKO(i));
+  cmdPanel(i);
+}
+
+/* ---------- Importador de decklists (LigaMagic CSV / TXT) ---------- */
+const norm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+function splitLine(line, d){
+  const out = []; let cur = '', q = false;
+  for (let i = 0; i < line.length; i++){
+    const ch = line[i];
+    if (ch === '"'){ if (q && line[i+1] === '"'){ cur += '"'; i++; } else q = !q; }
+    else if (ch === d && !q){ out.push(cur); cur = ''; }
+    else cur += ch;
+  }
+  out.push(cur); return out.map(x => x.trim());
+}
+function parseColorCell(str){
+  const n = norm(str), set = new Set();
+  if (!n) return { colors:[], land:false };
+  const land = /terreno|land/.test(n);
+  if (/^[wubrg]+$/.test(n) && n.length <= 5) n.toUpperCase().split('').forEach(c => set.add(c));
+  else {
+    if (/branc|white/.test(n)) set.add('W'); if (/azul|blue/.test(n)) set.add('U');
+    if (/pret|black/.test(n)) set.add('B'); if (/vermelh|red/.test(n)) set.add('R'); if (/verd|green/.test(n)) set.add('G');
+    (String(str).match(/\b[WUBRG]\b/g) || []).forEach(c => set.add(c));
+  }
+  return { colors:[...set], land };
+}
+function parseDeckContent(text, filename = ''){
+  text = String(text).replace(/^﻿/, '');
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const res = { cards:[], colors:[], commander:null, format:'txt' };
+  if (!lines.length) return res;
+  const first = lines[0];
+  const delim = [';', '\t', ','].map(d => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const head = splitLine(first, delim).map(norm);
+  const find = re => head.findIndex(h => re.test(h));
+  const iEn = find(/card.*\(en\)|\(en\)|english|ingles/), iPt = find(/card.*\(pt\)|\(pt\)|portugu/);
+  const iCard = find(/^(card|carta|nome|name)$/);
+  const iQty = find(/^(quantidade|qtd|qtde|qty|quantity|qtd\.)$/), iCor = find(/^(cor|cores|color|colors)$/);
+  const nameIdx = iEn >= 0 ? iEn : (iPt >= 0 ? iPt : iCard);
+  const set = new Set();
+  if (iQty >= 0 && nameIdx >= 0){
+    res.format = 'csv';
+    lines.slice(1).forEach(l => {
+      const f = splitLine(l, delim);
+      const name = (f[nameIdx] || f[iPt] || '').trim(); if (!name) return;
+      const qty = Math.max(1, parseInt(f[iQty]) || 1);
+      const cc = iCor >= 0 ? parseColorCell(f[iCor]) : { colors:[] };
+      cc.colors.forEach(c => set.add(c));
+      res.cards.push({ name, namePt: iPt >= 0 && iEn >= 0 ? (f[iPt] || '') : '', qty, colors:cc.colors });
+    });
+  } else {
+    let section = 'main';
+    lines.forEach(l => {
+      const t = l.trim();
+      if (/^(\/\/|#)/.test(t)) return;
+      const h = norm(t).replace(/:$/, '');
+      if (/^(commander|comandante)$/.test(h)){ section = 'commander'; return; }
+      if (/^(sideboard|maybeboard|considering|banco|reserva)$/.test(h)){ section = 'skip'; return; }
+      if (/^(deck|mainboard|main|companion|maindeck)$/.test(h)){ section = h === 'companion' ? 'skip' : 'main'; return; }
+      if (section === 'skip') return;
+      const m = t.match(/^(\d+)\s*x?\s+(.+)$/i); if (!m) return;
+      const name = m[2].replace(/\s*\([A-Za-z0-9]{2,6}\)(\s+\S+)?\s*$/, '').replace(/\s*\*[A-Za-z]+\*\s*$/, '').trim();
+      if (!name) return;
+      res.cards.push({ name, namePt:'', qty:parseInt(m[1]), colors:[] });
+      if (section === 'commander' && !res.commander) res.commander = name;
+    });
+  }
+  res.colors = ['W','U','B','R','G'].filter(c => set.has(c));
+  return res;
+}
+const baseName = f => (f || '').replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim();
+async function readFile(file){ return file.text ? file.text() : new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsText(file); }); }
+
+async function handleDeckFile(file){
+  if (!file) return;
+  const parsed = parseDeckContent(await readFile(file), file.name);
+  if (!parsed.cards.length){ toast('Nenhuma carta encontrada no arquivo'); return; }
+  draft.cards = parsed.cards;
+  if (!$('#dk-name').value.trim()) $('#dk-name').value = baseName(file.name);
+  if (parsed.colors.length){ draft.colors = parsed.colors; syncColors(); }
+  const sel = $('#dk-sel');
+  const names = [...new Set(parsed.cards.map(c => c.name))];
+  if (parsed.commander) names.sort((a, b) => (b === parsed.commander) - (a === parsed.commander));
+  sel.innerHTML = '<option value="">Selecione o Comandante</option>' + names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  sel.disabled = false;
+  $('#dz-info').textContent = `${file.name} · ${parsed.cards.reduce((s, c) => s + c.qty, 0)} cartas (${parsed.cards.length} únicas)`;
+  if (parsed.commander){ sel.value = parsed.commander; pickCommander(parsed.commander); }
+  toast('📄 Lista importada');
+}
+function pickCommander(name){
+  if (!name) return;
+  $('#dk-cmd').value = name; lookupCommander(name, true);
+}
+function dzDrop(e){
+  e.preventDefault(); $('#dz').classList.remove('border-neon');
+  handleDeckFile(e.dataTransfer.files[0]);
+}
+
+/* Importar para HAVE / WANT */
+async function importToList(file){
+  if (!file) return;
+  const parsed = parseDeckContent(await readFile(file), file.name);
+  if (!parsed.cards.length){ toast('Nenhuma carta encontrada no arquivo'); return; }
+  const key = 'gw_' + colTab, list = store.get(key);
+  parsed.cards.forEach(c => {
+    const ex = list.find(x => norm(x.name) === norm(c.name) && !x.foil && x.cond === 'NM');
+    if (ex) ex.qty += c.qty; else list.unshift({ id:uid(), name:c.name, qty:c.qty, cond:'NM', foil:false });
+  });
+  store.set(key, list); renderCollection();
+  toast(`📥 ${parsed.cards.length} cartas importadas para ${colTab.toUpperCase()}`);
+}
+
+/* ---------- Armazenamento ---------- */
+const store = {
+  get(k){
+    if (session.uid && CLOUD_KEYS.includes(k)) return session.data[k] || [];
+    try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch(e){ return []; }
+  },
+  set(k, v){
+    if (session.uid && CLOUD_KEYS.includes(k)){ session.data[k] = v; cloudPush(k, v); return; }
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){}
+  }
+};
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const MANA = { W:['Branco','#F5EFD0','#222'], U:['Azul','#2F7BD8','#fff'], B:['Preto','#3A3340','#fff'], R:['Vermelho','#D6372B','#fff'], G:['Verde','#1F9D55','#fff'] };
+const manaDot = (c, size = 22) => `<span style="width:${size}px;height:${size}px;background:${MANA[c][1]};color:${MANA[c][2]}" class="inline-grid place-items-center rounded-full text-[11px] font-extrabold ring-1 ring-white/30">${c}</span>`;
+
+/* ---------- Meus Decks ---------- */
+function decksPanel(){
+  const decks = store.get('gw_decks'), active = prof().activeDeck;
+  const cards = decks.map(d => `
+    <article class="bg-surface rounded-2xl overflow-hidden border ${d.id === active ? 'border-neon shadow-[0_0_16px_rgba(0,255,136,.25)]' : 'border-white/5'} flex flex-col">
+      <div class="relative h-24 bg-cover bg-center bg-surface2" style="background-image:url('${d.img}')">
+        <div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+        ${d.id === active ? '<span class="absolute top-2 left-2 text-[10px] font-extrabold tracking-widest px-2 py-0.5 rounded-full bg-neon text-black">ATIVO</span>' : ''}
+        <button onclick="deleteDeck('${d.id}')" aria-label="Excluir deck" class="absolute top-1 right-1 w-9 h-9 grid place-items-center rounded-full bg-black/50 text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </div>
+      <div class="p-3 flex-1 flex flex-col">
+        <h4 class="font-bold text-sm truncate">${esc(d.name)}</h4>
+        <p class="text-[11px] text-white/50 truncate">${esc(d.commander)}</p>
+        <div class="flex items-center justify-between mt-2">
+          <span class="flex gap-1">${d.colors.map(c => manaDot(c, 16)).join('') || '<span class="text-[10px] text-white/30">Incolor</span>'}</span>
+          <span class="text-xs font-extrabold ${d.games ? 'text-neon' : 'text-white/30'}" title="Winrate">${winrate(d)}</span>
+        </div>
+        <p class="text-[10px] text-white/30 mt-1">${d.games ? d.games + ' partida' + (d.games > 1 ? 's' : '') + ' · ' : ''}${d.cards && d.cards.length ? d.cards.reduce((n, c) => n + c.qty, 0) + ' cartas' : 'sem lista'}</p>
+        <button onclick="setActiveDeck('${d.id}')" ${d.id === active ? 'disabled' : ''} class="btn mt-3 h-10 rounded-lg text-xs font-extrabold tracking-wider ${d.id === active ? 'bg-neon/10 text-neon/60' : 'border border-neon/60 text-neon active:bg-neon/10'}">${d.id === active ? 'DECK ATIVO' : 'TORNAR ATIVO'}</button>
+      </div>
+    </article>`).join('');
+  openPanel('Meus Decks', `
+    <button onclick="deckForm()" class="btn w-full h-14 mt-4 mb-4 rounded-xl bg-neon text-black font-extrabold tracking-wider flex items-center justify-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i>IMPORTAR / CRIAR DECK</button>
+    ${cards ? `<div class="grid grid-cols-2 gap-3">${cards}</div>` : `<div class="text-center text-white/40 py-12"><i data-lucide="layers" class="w-10 h-10 mx-auto mb-3"></i><p class="text-sm">Nenhum deck cadastrado ainda.</p></div>`}`);
+}
+function deleteDeck(id){
+  openModal(`${titleH('Excluir deck?')}<p class="text-white/70 text-sm mb-5">Essa ação não pode ser desfeita.</p>
+    <div class="flex gap-3"><button class="${bigBtn} flex-1 bg-surface2" onclick="closeModal()">CANCELAR</button>
+    <button class="${bigBtn} flex-1 bg-red-500 text-white" onclick="doDeleteDeck('${id}')">EXCLUIR</button></div>`);
+}
+function doDeleteDeck(id){
+  store.set('gw_decks', store.get('gw_decks').filter(d => d.id !== id));
+  players.forEach(p => { if (p.deck === id) clearDeck(p); });
+  if (prof().activeDeck === id) saveProfile({ activeDeck:null });
+  closeModal(); decksPanel();
+}
+
+let draft = null, lookupT = null, lookupSeq = 0;
+function deckForm(){
+  draft = { colors:[], img:null, commander:'', cards:[] };
+  openPanel('Novo Deck', `
+    <div class="space-y-4 mt-4">
+      <label id="dz" ondragover="event.preventDefault();this.classList.add('border-neon')" ondragleave="this.classList.remove('border-neon')" ondrop="dzDrop(event)" class="block cursor-pointer rounded-2xl border-2 border-dashed border-white/20 bg-surface p-4 text-center transition">
+        <i data-lucide="upload" class="w-7 h-7 mx-auto text-neon"></i>
+        <span class="block text-sm font-semibold mt-1">Importar CSV (LigaMagic) ou TXT</span>
+        <span id="dz-info" class="block text-xs text-white/50 mt-0.5">Arraste o arquivo aqui ou toque para selecionar</span>
+        <input type="file" accept=".csv,.txt,text/csv,text/plain" class="hidden" onchange="handleDeckFile(this.files[0]);this.value=''">
+      </label>
+      <label class="block"><span class="text-xs uppercase tracking-widest text-white/50">Nome do deck</span>
+        <input id="dk-name" maxlength="30" placeholder="Ex: Korvold Sacrifício" class="mt-1.5 w-full bg-surface2 rounded-xl px-4 h-12 outline-none focus:ring-1 focus:ring-neon"></label>
+      <label class="block"><span class="text-xs uppercase tracking-widest text-white/50">Selecione o Comandante</span>
+        <select id="dk-sel" disabled onchange="pickCommander(this.value)" class="mt-1.5 w-full bg-surface2 rounded-xl px-3 h-12 outline-none disabled:opacity-40"><option value="">Importe um arquivo para listar as cartas</option></select></label>
+      <label class="block"><span class="text-xs uppercase tracking-widest text-white/50">Comandante (ou digite para buscar)</span>
+        <input id="dk-cmd" oninput="queueLookup()" onblur="queueLookup(0)" placeholder="Ex: Korvold, Fae-Cursed King" autocomplete="off" class="mt-1.5 w-full bg-surface2 rounded-xl px-4 h-12 outline-none focus:ring-1 focus:ring-neon"></label>
+      <div id="dk-prev" class="h-36 rounded-2xl bg-surface2 bg-cover bg-center grid place-items-end overflow-hidden relative">
+        <span id="dk-stat" class="m-2 px-3 py-1 rounded-full bg-black/60 text-xs text-white/60">Digite o comandante para buscar a arte</span>
+      </div>
+      <div><span class="text-xs uppercase tracking-widest text-white/50">Cores</span>
+        <div class="flex gap-3 mt-2">${Object.keys(MANA).map(c => `
+          <button type="button" data-c="${c}" onclick="toggleColor('${c}')" aria-label="${MANA[c][0]}" class="opacity-40 rounded-full p-1 transition">${manaDot(c, 44)}</button>`).join('')}</div></div>
+    </div>
+    <div class="flex gap-3 mt-8">
+      <button onclick="decksPanel()" class="${bigBtn} flex-1 bg-surface2">CANCELAR</button>
+      <button onclick="saveDeck()" class="${bigBtn} flex-1 bg-neon text-black">SALVAR</button>
+    </div>`);
+}
+function toggleColor(c){
+  const i = draft.colors.indexOf(c);
+  if (i >= 0) draft.colors.splice(i, 1); else draft.colors.push(c);
+  syncColors();
+}
+function syncColors(){
+  document.querySelectorAll('[data-c]').forEach(b => {
+    const on = draft.colors.includes(b.dataset.c);
+    b.classList.toggle('opacity-40', !on);
+    b.classList.toggle('ring-2', on); b.classList.toggle('ring-neon', on);
+  });
+}
+function queueLookup(delay = 700){
+  clearTimeout(lookupT);
+  const q = $('#dk-cmd').value.trim();
+  if (q.length < 3){ draft.img = null; $('#dk-prev').style.backgroundImage = ''; return; }
+  lookupT = setTimeout(() => lookupCommander(q), delay);
+}
+async function lookupCommander(q, exact = false){
+  const seq = ++lookupSeq, stat = $('#dk-stat');
+  if (!stat) return;
+  stat.textContent = 'Buscando no Scryfall…';
+  try {
+    let r = await fetch('https://api.scryfall.com/cards/named?' + (exact ? 'exact=' : 'fuzzy=') + encodeURIComponent(q));
+    if (!r.ok && exact) r = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + encodeURIComponent(q));
+    if (!r.ok) throw new Error('nf');
+    const c = await r.json();
+    if (seq !== lookupSeq || !$('#dk-cmd')) return;
+    const face = c.image_uris ? c : c.card_faces[0];
+    draft.img = face.image_uris.art_crop; draft.commander = c.name;
+    draft.colors = (c.color_identity || []).filter(x => MANA[x]);
+    $('#dk-prev').style.backgroundImage = `url('${draft.img}')`;
+    $('#dk-cmd').value = c.name;
+    stat.textContent = '✓ ' + c.name; stat.classList.add('text-neon');
+    syncColors();
+  } catch(e){
+    if (seq !== lookupSeq || !stat) return;
+    draft.img = null; $('#dk-prev').style.backgroundImage = '';
+    stat.classList.remove('text-neon'); stat.textContent = 'Comandante não encontrado';
+  }
+}
+function saveDeck(){
+  const name = $('#dk-name').value.trim(), cmdr = $('#dk-cmd').value.trim();
+  if (!name || !cmdr){ toast('Informe o nome do deck e o comandante'); return; }
+  if (!draft.img){ toast('Aguarde a busca da arte do comandante'); queueLookup(0); return; }
+  const decks = store.get('gw_decks');
+  decks.unshift({ id:uid(), name, commander:draft.commander || cmdr, colors:draft.colors.slice(), img:draft.img, cards:draft.cards || [] });
+  store.set('gw_decks', decks);
+  decksPanel(); toast('Deck salvo');
+}
+
+/* ---------- Minha Coleção (HAVE / WANT) ---------- */
+let colTab = 'have';
+function collectionPanel(){ openPanel('Minha Coleção', '<div id="col"></div>'); renderCollection(); }
+function setColTab(t){ colTab = t; renderCollection(); }
+function renderCollection(){
+  const key = 'gw_' + colTab, list = store.get(key);
+  const tab = (k, label) => `<button onclick="setColTab('${k}')" class="flex-1 h-11 rounded-lg text-sm font-bold tracking-wide ${colTab===k ? 'bg-surface2 text-neon shadow-[0_0_0_1px_rgba(0,255,136,.5)]' : 'text-white/50'}">${label}</button>`;
+  const rows = list.map(c => `
+    <li class="flex items-center gap-3 py-2.5 border-b border-white/5">
+      <span class="w-9 h-9 grid place-items-center rounded-lg bg-surface2 font-extrabold text-sm">${c.qty}x</span>
+      <span class="flex-1 min-w-0"><span class="block font-semibold truncate">${esc(c.name)}</span>
+        <span class="block text-xs text-white/50">${c.cond}${c.foil ? ' · <span class="text-amber-300">Foil ✦</span>' : ''}</span></span>
+      <button onclick="removeCard('${c.id}')" aria-label="Remover" class="w-10 h-10 grid place-items-center rounded-full text-red-400 active:bg-red-400/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </li>`).join('');
+  $('#col').innerHTML = `
+    <div class="flex gap-1 p-1 bg-surface rounded-xl mt-4 mb-4">${tab('have','HAVE (Tenho)')}${tab('want','WANT (Procuro)')}</div>
+    <div class="relative overflow-hidden rounded-2xl border border-neon/50 bg-gradient-to-br from-emerald-950 via-[#06150f] to-surface p-4 mb-4 shadow-[0_0_24px_rgba(0,255,136,.12)]">
+      <span class="radar absolute -right-6 -top-6 w-28 h-28 rounded-full border border-neon/30"></span><span class="radar d2 absolute -right-6 -top-6 w-28 h-28 rounded-full border border-neon/30"></span>
+      <div class="relative flex items-center gap-3">
+        <span class="w-11 h-11 grid place-items-center rounded-full bg-neon/15 text-neon shrink-0"><i data-lucide="radar" class="w-6 h-6"></i></span>
+        <span class="flex-1"><span class="block font-serif font-bold tracking-wide text-neon">RADAR DE MATCHES</span>
+          <span class="block text-xs text-white/60">Em breve: cruzamos o HAVE e o WANT dos jogadores do grupo e avisamos quando houver troca possível.</span></span>
+      </div>
+      <div class="relative flex gap-2 mt-3 text-[11px]"><span class="px-2.5 py-1 rounded-full bg-black/40 text-white/70">${store.get('gw_have').length} no HAVE</span><span class="px-2.5 py-1 rounded-full bg-black/40 text-white/70">${store.get('gw_want').length} no WANT</span><span class="ml-auto px-2.5 py-1 rounded-full bg-neon text-black font-extrabold tracking-widest">EM BREVE</span></div>
+    </div>
+    <div class="bg-surface rounded-2xl p-3 space-y-2">
+      <input id="cd-name" placeholder="Nome da carta" autocomplete="off" class="w-full bg-surface2 rounded-xl px-4 h-12 outline-none focus:ring-1 focus:ring-neon">
+      <div class="flex gap-2">
+        <input id="cd-qty" type="number" inputmode="numeric" min="1" value="1" aria-label="Quantidade" class="w-16 bg-surface2 rounded-xl px-3 h-12 text-center outline-none focus:ring-1 focus:ring-neon">
+        <select id="cd-cond" aria-label="Estado" class="flex-1 bg-surface2 rounded-xl px-3 h-12 outline-none">${['NM','LP','MP','HP','DMG'].map(x => `<option>${x}</option>`).join('')}</select>
+        <label class="flex items-center gap-1.5 px-3 h-12 bg-surface2 rounded-xl text-sm"><input id="cd-foil" type="checkbox" class="accent-[#00FF88] w-4 h-4">Foil</label>
+      </div>
+      <button onclick="addCard()" class="btn w-full h-12 rounded-xl bg-neon text-black font-extrabold tracking-wider flex items-center justify-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i>ADICIONAR AO ${colTab.toUpperCase()}</button>
+    </div>
+    <label class="btn mt-3 w-full h-12 rounded-xl border border-white/20 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer"><i data-lucide="file-up" class="w-4 h-4 text-neon"></i>Importar CSV/TXT para ${colTab.toUpperCase()}
+      <input type="file" accept=".csv,.txt,text/csv,text/plain" class="hidden" onchange="importToList(this.files[0]);this.value=''"></label>
+    <p class="text-xs text-white/40 mt-5 mb-1 px-1">${list.length} ${list.length === 1 ? 'carta' : 'cartas'}</p>
+    <ul>${rows || '<li class="py-8 text-center text-white/40 text-sm">Lista vazia.</li>'}</ul>`;
+  lucide.createIcons();
+}
+function addCard(){
+  const name = $('#cd-name').value.trim();
+  if (!name){ toast('Informe o nome da carta'); return; }
+  const key = 'gw_' + colTab, list = store.get(key);
+  list.unshift({ id:uid(), name, qty:Math.max(1, parseInt($('#cd-qty').value) || 1), cond:$('#cd-cond').value, foil:$('#cd-foil').checked });
+  store.set(key, list); renderCollection();
+}
+function removeCard(id){ const key = 'gw_' + colTab; store.set(key, store.get(key).filter(c => c.id !== id)); renderCollection(); }
+
+/* ---------- Deck no Lifetap ---------- */
+function applyActiveDeck(){
+  const id = prof().activeDeck, p = players[0];
+  if (!id || p.deck) return;
+  const d = store.get('gw_decks').find(x => x.id === id); if (!d) return;
+  if (!p.base) p.base = { name:p.name, img:p.img }; p.deck = id; p.name = d.name; p.img = d.img; p.cmdr = d.commander; renderGrid();
+}
+function clearDeck(p){ if (p.base){ p.name = p.base.name; p.img = p.base.img; } p.deck = null; p.cmdr = null; }
+function deckPicker(i){
+  const decks = store.get('gw_decks'), p = players[i];
+  const row = d => `
+    <button onclick="selectDeck(${i},'${d.id}')" class="btn w-full flex items-center gap-3 bg-surface rounded-xl p-2 mb-2 text-left ${p.deck === d.id ? 'shadow-[0_0_0_1px_#00FF88]' : 'border border-white/5'}">
+      <span class="w-14 h-14 rounded-lg bg-cover bg-center shrink-0" style="background-image:url('${d.img}')"></span>
+      <span class="flex-1 min-w-0"><span class="block font-bold truncate">${esc(d.name)}</span><span class="block text-xs text-white/50 truncate">${esc(d.commander)}</span>
+        <span class="flex gap-1 mt-1">${d.colors.map(c => manaDot(c, 16)).join('')}</span></span>
+      ${p.deck === d.id ? '<i data-lucide="check" class="w-5 h-5 text-neon"></i>' : ''}
+    </button>`;
+  openPanel('Deck · ' + p.name, `
+    <div class="mt-4">
+      ${decks.map(row).join('') || `<div class="text-center text-white/40 py-10 text-sm">Você ainda não tem decks cadastrados.</div>`}
+      ${p.deck ? `<button onclick="selectDeck(${i},null)" class="btn w-full h-12 rounded-xl border border-white/20 text-white/70 font-semibold mt-1">Remover deck (voltar ao padrão)</button>` : ''}
+      <button onclick="decksPanel()" class="btn w-full h-12 rounded-xl bg-surface2 font-semibold mt-3 flex items-center justify-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Cadastrar novo deck</button>
+    </div>`);
+}
+function selectDeck(i, id){
+  const p = players[i];
+  if (!p.base) p.base = { name:p.name, img:p.img };
+  if (id === null) clearDeck(p);
+  else {
+    const d = store.get('gw_decks').find(x => x.id === id); if (!d) return;
+    p.deck = id; p.name = d.name; p.img = d.img; p.cmdr = d.commander;
+  }
+  renderGrid(); closePanel();
+  toast(id === null ? 'Deck removido' : '🃏 ' + p.name);
+}
+
+/* ---------- Temporizador de turno ---------- */
+function updateTurn(){
+  const t = $('#turn');
+  t.classList.toggle('hidden', !settings.timer);
+  if (!settings.timer) return;
+  const s = Math.floor((Date.now() - turnStart) / 1000);
+  t.textContent = `Turno ${turnNo} · ${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+$('#turn').addEventListener('click', () => { turnNo++; turnStart = Date.now(); updateTurn(); });
+setInterval(() => { if (state === 'game') updateTurn(); }, 1000);
+
+/* ---------- Manter tela ligada ---------- */
+let wakeLock = null;
+async function applyWake(){
+  try {
+    if (state === 'game' && settings.wake && 'wakeLock' in navigator){
+      if (!wakeLock) wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } else if (wakeLock){ await wakeLock.release(); wakeLock = null; }
+  } catch(e){}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') applyWake(); });
+
+/* ---------- Menu radial ---------- */
+const actions = {
+  d20(){ pick('Oponente'); },
+  finish(){
+    openModal(`${titleH('Finalizar partida?')}
+      <p class="text-white/70 text-sm mb-5">A partida será salva no histórico e você voltará para a Home.</p>
+      <div class="flex gap-3">
+        <button class="${bigBtn} flex-1 bg-surface2" onclick="closeModal()">CANCELAR</button>
+        <button class="${bigBtn} flex-1 bg-neon text-black" onclick="finishGame()">FINALIZAR</button>
+      </div>`);
+  },
+  history: historyPanel,
+  settings: settingsPanel,
+  utils: utilsPanel
+};
+$('#view-game').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (b) actions[b.dataset.act]();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){ closeModal(); closePanel(); }
+});
+renderProfile();
+</script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDklSQ7APUu_DFU6z1Ucn1GAPTxNzr2FRk",
+  authDomain: "gwapp2.firebaseapp.com",
+  projectId: "gwapp2",
+  storageBucket: "gwapp2.firebasestorage.app",
+  messagingSenderId: "881790712292",
+  appId: "1:881790712292:web:46754ef5621cf516c9eff1"
+};
+
+const enabled = !Object.values(firebaseConfig).some(v => /^SUA_/.test(v));
+const cloud = { enabled };
+window.cloud = cloud;
+
+if (enabled){
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app), db = getFirestore(app);
+  Object.assign(cloud, {
+    signIn: (email, pass) => signInWithEmailAndPassword(auth, email, pass),
+    async signUp(email, pass, nick){
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      if (nick.trim()) await updateProfile(cred.user, { displayName:nick.trim() });
+      window.onCloudAuth && window.onCloudAuth(auth.currentUser);
+      return cred;
+    },
+    google: () => signInWithPopup(auth, new GoogleAuthProvider()),
+    logout: () => signOut(auth),
+    async loadAll(uid){
+      const out = { gw_decks:[], gw_have:[], gw_want:[] };
+      const ds = await getDocs(collection(db, 'users', uid, 'decks'));
+      ds.forEach(d => out.gw_decks.push(d.data()));
+      out.gw_decks.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      const cs = await getDocs(collection(db, 'users', uid, 'collection'));
+      cs.forEach(d => { if (d.id === 'have') out.gw_have = d.data().items || []; if (d.id === 'want') out.gw_want = d.data().items || []; });
+      const ps = await getDoc(doc(db, 'users', uid)); out.profile = ps.exists() ? ps.data() : {};
+      return out;
+    },
+    saveProfile: (uid, p) => setDoc(doc(db, 'users', uid), { ...p, updatedAt:Date.now() }, { merge:true }),
+    async saveDecks(uid, decks){
+      const col = collection(db, 'users', uid, 'decks'), snap = await getDocs(col), b = writeBatch(db);
+      const ids = new Set(decks.map(d => d.id));
+      snap.forEach(s => { if (!ids.has(s.id)) b.delete(s.ref); });
+      decks.forEach(d => b.set(doc(col, d.id), { ...d, updatedAt:Date.now() }));
+      await b.commit();
+    },
+    saveList: (uid, key, items) => setDoc(doc(db, 'users', uid, 'collection', key), { items, updatedAt:Date.now() })
+  });
+  onAuthStateChanged(auth, u => window.onCloudAuth && window.onCloudAuth(u));
+}
+</script>
+</body>
+</html>
