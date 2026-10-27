@@ -38,6 +38,7 @@ tailwind.config = {
   .cmdchip{background:rgba(255,255,255,.14);backdrop-filter:blur(3px);box-shadow:0 0 0 1px rgba(255,255,255,.18)}.cmdchip:active{background:rgba(0,255,136,.35)}
   .statusbar{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:100%;min-height:30px;margin-top:6px;padding:4px 8px;border-radius:9999px;background:rgba(0,0,0,.4);box-shadow:0 0 0 1px rgba(255,255,255,.12);align-content:center}.statusbar:active{background:rgba(0,255,136,.25)}
   .chip{font-size:12px;font-weight:700;white-space:nowrap;line-height:1.2}
+  .radar{animation:ping 2.4s cubic-bezier(0,0,.2,1) infinite}.radar.d2{animation-delay:1.2s}@keyframes ping{75%,100%{transform:scale(2);opacity:0}}
   .quad.ko{filter:grayscale(1) brightness(.6)}
   .rolling{animation:spin20 1s cubic-bezier(.2,.8,.2,1)}
 </style>
@@ -49,15 +50,16 @@ tailwind.config = {
   <header class="sticky top-0 z-20 flex items-center justify-between px-5 h-16 bg-bg/90 backdrop-blur">
     <a href="#" class="font-serif font-bold text-2xl tracking-tight">Geek<span class="text-neon">WeeD</span></a>
     <div class="flex items-center gap-1">
-      <button aria-label="Notificações" class="relative w-11 h-11 grid place-items-center rounded-full active:bg-surface2">
+      <button id="hdr-login" onclick="authPanel('in')" class="h-9 px-3 mr-1 rounded-full border border-neon/60 text-neon text-[10px] font-extrabold tracking-wider whitespace-nowrap active:bg-neon/10">ENTRAR / CRIAR CONTA</button>
+      <button id="hdr-bell" aria-label="Notificações" class="hidden relative w-11 h-11 grid place-items-center rounded-full active:bg-surface2">
         <i data-lucide="bell" class="w-6 h-6"></i>
         <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-bg"></span>
       </button>
-      <button aria-label="Perfil" class="relative w-11 h-11 grid place-items-center">
+      <button id="hdr-avatar" onclick="avatarClick()" aria-label="Conta" class="hidden relative w-11 h-11 grid place-items-center">
         <img src="https://i.pravatar.cc/80?img=12" alt="Avatar" class="w-9 h-9 rounded-full object-cover ring-2 ring-mint">
         <span class="absolute bottom-1.5 right-1.5 w-3 h-3 rounded-full bg-neon ring-2 ring-bg"></span>
       </button>
-      <button aria-label="Configurações" class="w-11 h-11 grid place-items-center rounded-full active:bg-surface2">
+      <button onclick="appSettingsPanel()" aria-label="Configurações do app" class="w-11 h-11 grid place-items-center rounded-full active:bg-surface2">
         <i data-lucide="settings" class="w-6 h-6"></i>
       </button>
     </div>
@@ -117,12 +119,19 @@ tailwind.config = {
 
     <!-- 5. Perfil -->
     <section aria-label="Perfil do jogador">
-      <div class="grad-border rounded-2xl p-5">
-        <div class="flex items-center gap-4">
-          <img src="https://i.pravatar.cc/160?img=12" alt="Lucas_Geek" class="w-20 h-20 rounded-full object-cover border-4 border-mint">
-          <div class="flex-1 min-w-0">
-            <h2 class="font-serif font-bold text-2xl truncate">Lucas_Geek</h2>
+      <div class="grad-border rounded-2xl overflow-hidden">
+        <div id="prof-cover" class="relative h-36 bg-cover bg-center bg-surface2" style="background-image:url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200&q=75')">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#12141A] via-[#12141A]/25 to-transparent"></div>
+          <button onclick="appSettingsPanel()" aria-label="Configurações do app" class="absolute top-2 left-2 w-10 h-10 grid place-items-center rounded-full bg-black/50 backdrop-blur text-white/90 active:bg-black/70"><i data-lucide="settings" class="w-5 h-5"></i></button>
+          <button onclick="coverModal()" aria-label="Alterar capa" class="absolute top-2 right-2 w-10 h-10 grid place-items-center rounded-full bg-black/50 backdrop-blur text-white/90 active:bg-black/70"><i data-lucide="camera" class="w-5 h-5"></i></button>
+        </div>
+        <div class="px-5 pb-5">
+        <div class="flex items-end gap-4 -mt-10 relative">
+          <button onclick="avatarModal()" aria-label="Alterar avatar" class="shrink-0"><img id="prof-avatar" src="https://i.pravatar.cc/160?img=12" alt="Avatar" class="w-20 h-20 rounded-full object-cover border-4 border-neon bg-surface shadow-[0_0_18px_rgba(0,255,136,.45)]"></button>
+          <div class="flex-1 min-w-0 pb-1">
+            <h2 id="prof-name" class="font-serif font-bold text-2xl truncate">Lucas_Geek</h2>
             <p class="text-sm text-mint">Nível 12 - Arqui-inimigo da Loja</p>
+            <p id="prof-deck" class="text-xs text-white/50 truncate"></p>
           </div>
         </div>
         <div class="mt-4">
@@ -154,6 +163,7 @@ tailwind.config = {
         <div class="grid grid-cols-2 gap-3 mt-5">
           <button onclick="decksPanel()" class="btn h-14 rounded-xl bg-neon text-black font-extrabold text-sm tracking-wider flex items-center justify-center gap-2"><i data-lucide="layers" class="w-5 h-5"></i>MEUS DECKS</button>
           <button onclick="collectionPanel()" class="btn h-14 rounded-xl border border-neon/60 text-neon font-extrabold text-sm tracking-wider flex items-center justify-center gap-2"><i data-lucide="library" class="w-5 h-5"></i>MINHA COLEÇÃO</button>
+        </div>
         </div>
       </div>
     </section>
@@ -198,7 +208,7 @@ tailwind.config = {
 lucide.createIcons();
 
 const $ = s => document.querySelector(s);
-const START_LIFE = 40;
+let START_LIFE = 40;
 const art = n => `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(n)}&format=image&version=art_crop`;
 let players = [
   { name:'Jogador 1', life:START_LIFE, tint:'rgba(16,185,129,.45)',  img:art('Korvold, Fae-Cursed King') },
@@ -210,10 +220,12 @@ let log = [];
 const newCounters = () => ({ poison:0, energy:0, tax:0, exp:0, rad:0, treasure:0, monarch:false, initiative:false, blessing:false });
 players.forEach(p => p.counters = newCounters());
 let isDay = true;
-const DEFAULTS = { autoKO:true, cmdLoss:true, timer:false, camera:false, vibrate:true, wake:true };
+const DEFAULTS = { startLife:40, autoKO:true, cmdLoss:true, timer:false, camera:false, vibrate:true, wake:true };
 let settings = { ...DEFAULTS };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('gw_settings') || '{}')); } catch(e){}
 let cmd = Array.from({length:4}, () => [0,0,0,0]); // cmd[i][j] = dano que i recebeu do comandante de j
+let currentWinnerIdx = null;
+START_LIFE = [20, 30, 40].includes(settings.startLife) ? settings.startLife : 40; players.forEach(p => p.life = START_LIFE);
 let gameStart = Date.now(), currentWinner = null, turnNo = 1, turnStart = Date.now();
 
 /* ---------- Navegação ---------- */
@@ -227,9 +239,9 @@ function setState(s){
   if (s === 'game'){ renderGrid(); updateTurn(); }
   applyWake();
 }
-document.querySelectorAll('[data-go="game"]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); newGame(); setState('game'); }));
+document.querySelectorAll('[data-go="game"]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); newGame(); setState('game'); applyActiveDeck(); }));
 
-function newGame(){ players.forEach(p => p.life = START_LIFE); log = []; players.forEach(p => p.counters = newCounters()); isDay = true; cmd = Array.from({length:4}, () => [0,0,0,0]); gameStart = Date.now(); currentWinner = null; turnNo = 1; turnStart = Date.now(); }
+function newGame(){ players.forEach(p => p.life = START_LIFE); log = []; players.forEach(p => p.counters = newCounters()); isDay = true; cmd = Array.from({length:4}, () => [0,0,0,0]); gameStart = Date.now(); currentWinner = null; currentWinnerIdx = null; turnNo = 1; turnStart = Date.now(); }
 
 /* ---------- Grid 2x2 ---------- */
 function renderGrid(){
@@ -319,7 +331,7 @@ const DOTS = ['#10B981','#EAB308','#EF4444','#3B82F6'];
 
 /* ---------- Sorteio de jogador / oponente ---------- */
 function pick(label){
-  closePanel();
+  closePanel(); sfx('roll');
   const icon = $('#d20 svg'); icon.classList.remove('rolling'); void icon.getBoundingClientRect(); icon.classList.add('rolling');
   const qs = document.querySelectorAll('.quad');
   qs.forEach(q => q.classList.remove('picked'));
@@ -345,7 +357,7 @@ const DIE_SHAPES = {
 const dieSvg = n => `<svg viewBox="0 0 24 24" class="w-14 h-14"><polygon points="${DIE_SHAPES[n]}" fill="none" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/><text x="12" y="${n==4?17:15}" text-anchor="middle" font-size="${n>=10?9:10}" font-weight="700" font-family="Inter" fill="#fff">${n}</text></svg>`;
 let rolling = false;
 function animateOut(label, finalFn, ticks, tickFn){
-  if (rolling) return; rolling = true;
+  if (rolling) return; rolling = true; sfx('roll');
   const out = $('#dice-out'), lab = $('#dice-label');
   lab.textContent = label; out.classList.remove('text-neon'); out.classList.add('text-white/60');
   let n = 0;
@@ -430,6 +442,9 @@ function loadGames(){
 }
 function saveGame(){
   if (!log.length && !currentWinner) return;
+  const decks = store.get('gw_decks'); let touched = false;
+  players.forEach((p, i) => { const d = p.deck && decks.find(x => x.id === p.deck); if (d){ d.games = (d.games || 0) + 1; if (currentWinnerIdx === i) d.wins = (d.wins || 0) + 1; touched = true; } });
+  if (touched) store.set('gw_decks', decks);
   const g = loadGames();
   g.unshift({ id:(g.reduce((m,x) => Math.max(m, x.id), 0)) + 1, date:gameStart, dur:Date.now() - gameStart, players:4, life:START_LIFE, winner:currentWinner });
   try { localStorage.setItem('gw_games', JSON.stringify(g.slice(0, 30))); } catch(e){}
@@ -484,7 +499,7 @@ function winnerModal(){
       <button onclick="setWinner(${i})" class="btn h-14 rounded-xl bg-surface2 font-semibold flex items-center justify-center gap-2 truncate px-2"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${DOTS[i]}"></span>${esc(p.name)}</button>`).join('')}</div>
     <button class="${bigBtn} w-full mt-3 bg-transparent text-white/60" onclick="closeModal()">CANCELAR</button>`);
 }
-function setWinner(i){ currentWinner = players[i].name; closeModal(); if (!$('#panel').classList.contains('hidden')) renderHistory(); toast('🏆 ' + currentWinner); }
+function setWinner(i){ currentWinnerIdx = i; currentWinner = players[i].name; closeModal(); if (!$('#panel').classList.contains('hidden')) renderHistory(); toast('🏆 ' + currentWinner); }
 function resetModal(){
   openModal(`${titleH('Reiniciar partida?')}
     <p class="text-white/70 text-sm mb-5">A vida volta para ${START_LIFE} e o histórico atual será apagado.</p>
@@ -503,11 +518,14 @@ function settingsPanel(){
       <span class="sw ${settings[key] ? 'on' : ''}"></span>
     </button>`;
   openPanel('Configurações da Mesa', `
+    ${sectionH('Vida inicial')}
+    <div class="flex gap-2 mt-3">${[20, 30, 40].map(n => `<button onclick="setStartLife(${n})" class="btn flex-1 h-12 rounded-xl font-extrabold ${START_LIFE === n ? 'bg-neon text-black shadow-[0_0_14px_rgba(0,255,136,.4)]' : 'bg-surface2 text-white/70'}">${n} HP</button>`).join('')}</div>
+    <button onclick="newGame();renderGrid();closePanel();toast('Partida reiniciada com ' + START_LIFE + ' HP')" class="btn w-full h-12 mt-2 rounded-xl border border-red-400/60 text-red-400 font-extrabold text-xs tracking-wider">RESETAR PARTIDA COM ${START_LIFE} HP</button>
     ${sectionH('Regras')}
-    ${tg('autoKO', 'Auto-KO', 'Marca o jogador como eliminado ao chegar a 0 de vida')}
+    ${tg('autoKO', 'Auto-KO', 'Elimina por vida 0, veneno 10 (Infect) ou 21 de dano de comandante')}
     ${tg('cmdLoss', 'Perda de vida por dano de Comandante', 'Dano de comandante também reduz a vida')}
     ${tg('timer', 'Temporizador de turno', 'Mostra turno e tempo; toque no marcador para passar o turno')}
-    ${sectionH('Interface & Dispositivo')}
+    ${sectionH('Dispositivo')}
     ${tg('camera', 'Modo câmera', 'Inverter jogadores do topo: todos na mesma direção')}
     ${tg('vibrate', 'Vibração ao toque', 'Feedback tátil ao mudar a vida')}
     ${tg('wake', 'Manter tela ligada', 'Evita que a tela apague durante a partida')}
@@ -526,10 +544,18 @@ function settingsPanel(){
   `, renderGrid);
   $('#panel-body').scrollTop = keep;
 }
+function persistSettings(){
+  try { localStorage.setItem('gw_settings', JSON.stringify(settings)); } catch(e){}
+  if (session.uid) saveProfile({ table:{ ...settings } });
+}
+function setStartLife(n){
+  START_LIFE = n; settings.startLife = n; persistSettings();
+  const cb = panelClose; settingsPanel(); panelClose = cb;
+}
 function setName(i, v){ players[i].name = v.trim() || `Jogador ${i+1}`; }
 function toggle(k){
   settings[k] = !settings[k];
-  try { localStorage.setItem('gw_settings', JSON.stringify(settings)); } catch(e){}
+  persistSettings();
   if (k === 'wake') applyWake();
   if (k === 'timer') updateTurn();
   const cb = panelClose; settingsPanel(); panelClose = cb;
@@ -606,6 +632,257 @@ function countersPanel(i){
     <button onclick="closePanel()" class="${bigBtn} mx-auto mt-5 flex items-center gap-2 bg-surface2"><i data-lucide="x-circle" class="w-5 h-5"></i>fechar</button>`);
   $('#panel-body').scrollTop = keep;
 }
+
+/* ---------- Conta / Nuvem (Firebase) ---------- */
+const session = { uid:null, user:null, data:{}, profile:{} };
+const CLOUD_KEYS = ['gw_decks', 'gw_have', 'gw_want'];
+const pushT = {};
+function cloudPush(k, v){
+  clearTimeout(pushT[k]);
+  pushT[k] = setTimeout(async () => {
+    const c = window.cloud; if (!c || !session.uid) return;
+    try {
+      if (k === 'gw_decks') await c.saveDecks(session.uid, v);
+      else await c.saveList(session.uid, k.replace('gw_', ''), v);
+    } catch(e){ console.error(e); toast('⚠️ Falha ao sincronizar com a nuvem'); }
+  }, 400);
+}
+const authErr = e => ({
+  'auth/invalid-credential':'E-mail ou senha incorretos.', 'auth/wrong-password':'E-mail ou senha incorretos.', 'auth/user-not-found':'E-mail ou senha incorretos.',
+  'auth/email-already-in-use':'Este e-mail já tem uma conta.', 'auth/weak-password':'A senha precisa de pelo menos 6 caracteres.',
+  'auth/invalid-email':'E-mail inválido.', 'auth/missing-password':'Informe a senha.', 'auth/popup-closed-by-user':'Login cancelado.',
+  'auth/operation-not-allowed':'Este método de login não está ativado no Firebase Console.', 'auth/network-request-failed':'Sem conexão com a internet.',
+  'auth/unauthorized-domain':'Domínio não autorizado no Firebase (use localhost ou adicione o domínio).', 'auth/too-many-requests':'Muitas tentativas. Tente mais tarde.',
+  'auth/operation-not-supported-in-this-environment':'Login com Google não funciona abrindo o arquivo direto. Use um servidor local (http://localhost).'
+}[e && e.code] || 'Não foi possível concluir. Tente novamente.');
+
+window.onCloudAuth = async function(user){
+  if (user){
+    session.uid = user.uid; session.user = user; session.data = {}; session.profile = {};
+    toast('☁️ Sincronizando…');
+    try {
+      const cloudData = await window.cloud.loadAll(user.uid);
+      session.profile = cloudData.profile || {};
+      if (session.profile.table){ Object.assign(settings, session.profile.table); START_LIFE = [20, 30, 40].includes(settings.startLife) ? settings.startLife : 40; applyWake(); }
+      if (!Object.keys(session.profile).length && Object.keys(localProfile).length){ session.profile = { ...localProfile }; cloudPushProfile(session.profile); }
+      const local = Object.fromEntries(CLOUD_KEYS.map(k => [k, (() => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch(e){ return []; } })()]));
+      const cloudEmpty = CLOUD_KEYS.every(k => !(cloudData[k] || []).length);
+      const localHas = CLOUD_KEYS.some(k => local[k].length);
+      if (cloudEmpty && localHas){
+        CLOUD_KEYS.forEach(k => { session.data[k] = local[k]; if (local[k].length) cloudPush(k, local[k]); });
+        toast('☁️ Dados locais enviados para a nuvem');
+      } else {
+        CLOUD_KEYS.forEach(k => session.data[k] = cloudData[k] || []);
+        toast('☁️ Dados carregados da nuvem');
+      }
+    } catch(e){ console.error(e); session.data = {}; toast('⚠️ Não foi possível ler a nuvem'); }
+  } else { session.uid = null; session.user = null; session.data = {}; session.profile = {}; }
+  const ids = new Set(store.get('gw_decks').map(d => d.id));
+  players.forEach(p => { if (p.deck && !ids.has(p.deck)) clearDeck(p); });
+  if (state === 'game') renderGrid();
+  renderAuthUI();
+  const t = $('#panel-title');
+  if (user && t && /Conta|Entrar/.test(t.textContent)) closePanel();
+};
+const displayNick = u => u ? (u.displayName || (u.email || '').split('@')[0] || 'Jogador') : 'Lucas_Geek';
+function renderAuthUI(){
+  const u = session.user;
+  $('#hdr-login').classList.toggle('hidden', !!u);
+  $('#hdr-bell').classList.toggle('hidden', !u);
+  $('#hdr-avatar').classList.toggle('hidden', !u);
+  if (u){
+    const photo = u.photoURL;
+    $('#hdr-avatar').innerHTML = photo
+      ? `<img src="${esc(photo)}" referrerpolicy="no-referrer" alt="Avatar" class="w-9 h-9 rounded-full object-cover ring-2 ring-mint"><span class="absolute bottom-1.5 right-1.5 w-3 h-3 rounded-full bg-neon ring-2 ring-bg"></span>`
+      : `<span class="w-9 h-9 rounded-full grid place-items-center bg-surface2 ring-2 ring-mint font-extrabold text-neon">${esc(displayNick(u)[0].toUpperCase())}</span><span class="absolute bottom-1.5 right-1.5 w-3 h-3 rounded-full bg-neon ring-2 ring-bg"></span>`;
+  }
+  $('#prof-name').textContent = displayNick(u);
+  renderProfile();
+}
+function avatarClick(){ session.user ? accountPanel() : authPanel(); }
+
+let authMode = 'in';
+function authPanel(mode){
+  if (mode) authMode = mode;
+  const c = window.cloud, ok = c && c.enabled, up = authMode === 'up';
+  const tab = (k, l) => `<button onclick="authPanel('${k}')" class="flex-1 h-11 rounded-lg text-sm font-semibold ${authMode===k ? 'bg-surface2 text-neon shadow-[0_0_0_1px_rgba(0,255,136,.5)]' : 'text-white/50'}">${l}</button>`;
+  const inp = (id, type, ph, extra = '') => `<input id="${id}" type="${type}" placeholder="${ph}" ${extra} class="w-full bg-surface2 rounded-xl px-4 h-12 outline-none focus:ring-1 focus:ring-neon">`;
+  openPanel(up ? 'Criar Conta' : 'Entrar', `
+    ${!ok ? `<div class="mt-4 rounded-xl border border-amber-400/40 bg-amber-400/10 p-3 text-xs text-amber-200">Firebase ainda não configurado (faltam <b>apiKey</b> e <b>appId</b>). O app segue funcionando offline com os dados salvos neste aparelho.</div>` : ''}
+    <div class="flex gap-1 p-1 bg-surface rounded-xl mt-4">${tab('in','Entrar')}${tab('up','Criar Conta')}</div>
+    <form onsubmit="submitAuth(event)" class="space-y-3 mt-4">
+      ${up ? inp('au-nick', 'text', 'Nick (ex: Lucas_Geek)', 'maxlength="20" autocomplete="nickname"') : ''}
+      ${inp('au-email', 'email', 'E-mail', 'autocomplete="email" required')}
+      ${inp('au-pass', 'password', 'Senha', `autocomplete="${up ? 'new-password' : 'current-password'}" required minlength="6"`)}
+      <p id="au-err" class="text-sm text-red-400 min-h-[20px]"></p>
+      <button id="au-submit" ${ok ? '' : 'disabled'} class="btn w-full h-14 rounded-xl bg-neon text-black font-extrabold tracking-wider disabled:opacity-40">${up ? 'CRIAR CONTA' : 'ENTRAR'}</button>
+    </form>
+    <div class="flex items-center gap-3 my-5 text-xs text-white/30"><span class="flex-1 h-px bg-white/10"></span>ou<span class="flex-1 h-px bg-white/10"></span></div>
+    <button onclick="googleLogin()" ${ok ? '' : 'disabled'} class="btn w-full h-14 rounded-xl bg-white text-black font-bold flex items-center justify-center gap-3 disabled:opacity-40">
+      <svg viewBox="0 0 48 48" class="w-5 h-5"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.4 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7a14.500 14.500 0 010-9.400l-7.900-6.100a24 24 0 000 21.600l7.900-6.100z"/><path fill="#34A853" d="M24 48c6.500 0 11.900-2.100 15.900-5.800l-7.600-5.900c-2.100 1.400-4.900 2.300-8.300 2.300-6.300 0-11.600-4.100-13.500-9.800l-7.900 6.100C6.500 42.600 14.600 48 24 48z"/></svg>
+      Entrar com Google</button>
+    <p class="text-xs text-white/40 text-center mt-5">Sem conta? Feche esta tela e use o app normalmente: seus dados ficam salvos neste aparelho.</p>`);
+}
+async function submitAuth(e){
+  e.preventDefault();
+  const err = $('#au-err'), btn = $('#au-submit'); err.textContent = ''; btn.disabled = true;
+  try {
+    const email = $('#au-email').value.trim(), pass = $('#au-pass').value;
+    if (authMode === 'up') await window.cloud.signUp(email, pass, ($('#au-nick') || {}).value || '');
+    else await window.cloud.signIn(email, pass);
+  } catch(ex){ err.textContent = authErr(ex); btn.disabled = false; }
+}
+async function googleLogin(){
+  try { await window.cloud.google(); } catch(ex){ const el = $('#au-err'); if (el) el.textContent = authErr(ex); else toast(authErr(ex)); }
+}
+function accountPanel(){
+  const u = session.user; if (!u) return authPanel();
+  const photo = u.photoURL ? `<img src="${esc(u.photoURL)}" referrerpolicy="no-referrer" class="w-20 h-20 rounded-full object-cover ring-2 ring-mint">` : `<span class="w-20 h-20 rounded-full grid place-items-center bg-surface2 ring-2 ring-mint text-3xl font-extrabold text-neon">${esc(displayNick(u)[0].toUpperCase())}</span>`;
+  openPanel('Conta', `
+    <div class="flex flex-col items-center text-center mt-8">${photo}
+      <h3 class="font-serif font-bold text-2xl mt-4">${esc(displayNick(u))}</h3>
+      <p class="text-sm text-white/50">${esc(u.email || '')}</p>
+      <p class="mt-4 text-xs px-3 py-1.5 rounded-full bg-neon/10 text-neon border border-neon/30">☁️ Decks e coleção sincronizados</p></div>
+    <button onclick="doLogout()" class="btn w-full h-14 mt-10 rounded-xl border border-red-400/60 text-red-400 font-extrabold tracking-wider">SAIR DA CONTA</button>`);
+}
+async function doLogout(){ closePanel(); try { await window.cloud.logout(); toast('Você saiu da conta'); } catch(e){} }
+
+/* ---------- Perfil: capa, avatar, deck ativo ---------- */
+const DEFAULT_COVER = 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200&q=75';
+const DEFAULT_AVATAR = 'https://i.pravatar.cc/160?img=12';
+let localProfile = (() => { try { return JSON.parse(localStorage.getItem('gw_profile') || '{}'); } catch(e){ return {}; } })();
+const prof = () => session.uid ? session.profile : localProfile;
+let profPushT;
+function cloudPushProfile(p){
+  clearTimeout(profPushT);
+  profPushT = setTimeout(async () => {
+    const c = window.cloud; if (!c || !session.uid) return;
+    try { await c.saveProfile(session.uid, p); } catch(e){ console.error(e); toast('⚠️ Falha ao sincronizar o perfil'); }
+  }, 400);
+}
+function saveProfile(patch){
+  const p = prof(); Object.assign(p, patch);
+  if (session.uid) cloudPushProfile(p);
+  else { try { localStorage.setItem('gw_profile', JSON.stringify(p)); } catch(e){} }
+  renderProfile();
+}
+function renderProfile(){
+  const p = prof(), u = session.user;
+  $('#prof-cover').style.backgroundImage = `url('${p.cover || DEFAULT_COVER}')`;
+  $('#prof-avatar').src = p.avatar || (u && u.photoURL) || DEFAULT_AVATAR;
+  const d = store.get('gw_decks').find(x => x.id === p.activeDeck);
+  $('#prof-deck').textContent = d ? '🃏 Deck ativo: ' + d.name : 'Nenhum deck ativo';
+}
+function coverModal(){
+  openModal(`${titleH('Alterar capa')}
+    <label class="block text-xs uppercase tracking-widest text-white/50">URL da imagem
+      <input id="cv-url" oninput="coverPrev(this.value)" placeholder="https://..." value="${esc(prof().cover || '')}" class="mt-1.5 w-full bg-surface2 rounded-xl px-4 h-12 text-sm normal-case tracking-normal text-white outline-none focus:ring-1 focus:ring-neon"></label>
+    <div class="text-center text-xs text-white/30 my-3">ou busque uma carta</div>
+    <div class="flex gap-2">
+      <input id="cv-card" placeholder="Ex: Korvold, Fae-Cursed King" onkeydown="if(event.key==='Enter')coverSearch()" class="flex-1 min-w-0 bg-surface2 rounded-xl px-4 h-12 text-sm outline-none focus:ring-1 focus:ring-neon">
+      <button onclick="coverSearch()" class="btn h-12 px-4 rounded-xl bg-surface2 text-neon font-bold text-sm">Buscar</button>
+    </div>
+    <div id="cv-prev" class="h-24 rounded-xl bg-surface2 bg-cover bg-center mt-4" style="background-image:url('${esc(prof().cover || DEFAULT_COVER)}')"></div>
+    <p id="cv-stat" class="text-xs text-white/40 mt-2 min-h-[16px]"></p>
+    <div class="flex gap-2 mt-3">
+      <button onclick="saveProfile({cover:null});closeModal()" class="${bigBtn} bg-transparent text-white/60 px-3">PADRÃO</button>
+      <button onclick="closeModal()" class="${bigBtn} flex-1 bg-surface2">CANCELAR</button>
+      <button onclick="coverSave()" class="${bigBtn} flex-1 bg-neon text-black">SALVAR</button>
+    </div>`);
+}
+function coverPrev(v){ v = v.trim(); if (/^https?:\/\//.test(v)) $('#cv-prev').style.backgroundImage = `url('${v.replace(/'/g, '%27')}')`; }
+async function coverSearch(){
+  const q = $('#cv-card').value.trim(), st = $('#cv-stat'); if (q.length < 2) return;
+  st.textContent = 'Buscando no Scryfall…';
+  try {
+    const r = await fetch('https://api.scryfall.com/cards/named?fuzzy=' + encodeURIComponent(q));
+    if (!r.ok) throw 0;
+    const c = await r.json(), face = c.image_uris ? c : c.card_faces[0], url = face.image_uris.art_crop;
+    $('#cv-url').value = url; coverPrev(url); st.textContent = '✓ ' + c.name;
+  } catch(e){ st.textContent = 'Carta não encontrada'; }
+}
+function coverSave(){
+  const v = $('#cv-url').value.trim();
+  if (!v){ saveProfile({ cover:null }); closeModal(); return; }
+  if (!/^https?:\/\//.test(v)){ toast('Use um link que comece com http(s)://'); return; }
+  saveProfile({ cover:v }); closeModal();
+}
+function avatarModal(){
+  openModal(`${titleH('Alterar avatar')}
+    <input id="av-url" placeholder="URL da imagem (https://...)" value="${esc(prof().avatar || '')}" class="w-full bg-surface2 rounded-xl px-4 h-12 text-sm outline-none focus:ring-1 focus:ring-neon">
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveProfile({avatar:null});closeModal()" class="${bigBtn} bg-transparent text-white/60 px-3">PADRÃO</button>
+      <button onclick="closeModal()" class="${bigBtn} flex-1 bg-surface2">CANCELAR</button>
+      <button onclick="avatarSave()" class="${bigBtn} flex-1 bg-neon text-black">SALVAR</button>
+    </div>`);
+}
+function avatarSave(){
+  const v = $('#av-url').value.trim();
+  if (v && !/^https?:\/\//.test(v)){ toast('Use um link que comece com http(s)://'); return; }
+  saveProfile({ avatar:v || null }); closeModal();
+}
+function setActiveDeck(id){ saveProfile({ activeDeck:id }); decksPanel(); toast('✓ Deck ativo definido'); }
+const winrate = d => d.games ? Math.round((d.wins || 0) / d.games * 100) + '%' : '—';
+
+/* ---------- Configurações do App / Conta ---------- */
+function appSettingsPanel(){
+  const keep = $('#panel-body').scrollTop, u = session.user, cloudOn = window.cloud && window.cloud.enabled, p = prof();
+  const val = { tradeAlerts: !!p.tradeAlerts, sounds: p.sounds !== false };
+  const tg = (key, label, desc) => `
+    <button role="switch" aria-checked="${val[key]}" onclick="appToggle('${key}')" class="w-full flex items-center gap-3 py-3 text-left">
+      <span class="flex-1"><span class="block font-semibold">${label}</span><span class="block text-xs text-white/50">${desc}</span></span>
+      <span class="sw ${val[key] ? 'on' : ''}"></span></button>`;
+  const link = (icon, label, fn) => `
+    <button onclick="${fn}" class="btn w-full flex items-center gap-3 py-3 text-left">
+      <span class="w-10 h-10 grid place-items-center rounded-xl bg-surface2 text-neon"><i data-lucide="${icon}" class="w-5 h-5"></i></span>
+      <span class="flex-1 font-semibold">${label}</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/30"></i></button>`;
+  const account = u ? `
+      <div class="flex items-center gap-3 bg-surface rounded-xl p-3 mt-3">
+        <span class="w-11 h-11 grid place-items-center rounded-full bg-neon/10 text-neon"><i data-lucide="user-check" class="w-5 h-5"></i></span>
+        <span class="flex-1 min-w-0"><span class="block font-semibold truncate">${esc(displayNick(u))}</span><span class="block text-xs text-white/50 truncate">${esc(u.email || '')}</span></span></div>
+      <p class="flex items-center gap-2 text-xs text-neon mt-3 px-1"><span class="w-2 h-2 rounded-full bg-neon shadow-[0_0_8px_#00FF88]"></span>Dados sincronizados na Nuvem</p>
+      <button onclick="doLogout()" class="btn w-full h-12 mt-3 rounded-xl border border-red-400/60 text-red-400 font-extrabold text-sm tracking-wider">SAIR DA CONTA</button>` : `
+      <div class="flex items-center gap-3 bg-surface rounded-xl p-3 mt-3">
+        <span class="w-11 h-11 grid place-items-center rounded-full bg-surface2 text-white/60"><i data-lucide="user" class="w-5 h-5"></i></span>
+        <span class="flex-1"><span class="block font-semibold">Modo convidado</span><span class="block text-xs text-white/50">Decks e listas ficam salvos só neste aparelho.</span></span></div>
+      <p class="flex items-center gap-2 text-xs text-white/40 mt-3 px-1"><span class="w-2 h-2 rounded-full bg-white/30"></span>${cloudOn ? 'Sem sincronização na nuvem' : 'Nuvem indisponível'}</p>
+      <button onclick="authPanel('in')" class="btn w-full h-12 mt-3 rounded-xl bg-neon text-black font-extrabold text-sm tracking-wider">ENTRAR / CRIAR CONTA</button>`;
+  openPanel('Configurações do App', `
+    ${sectionH('Conta & Sincronização')}${account}
+    ${sectionH('Notificações e Social')}
+    ${tg('tradeAlerts', 'Alertas de Troca (HAVE / WANT)', 'Avisar quando um jogador do grupo procurar uma carta que você tem. A preferência já fica salva; os avisos chegam com o Radar de Matches.')}
+    ${sectionH('Personalização Visual')}
+    ${link('image', 'Alterar Foto de Capa', 'coverModal()')}
+    ${link('circle-user', 'Alterar Avatar', 'avatarModal()')}
+    ${tg('sounds', 'Efeitos Sonoros', 'Sons ao tocar nos botões e rolar dados')}
+    <p class="text-center text-[11px] text-white/25 mt-8 mb-2">GeekWeeD · MVP</p>
+  `);
+  $('#panel-body').scrollTop = keep;
+}
+function appToggle(k){
+  const p = prof(), cur = k === 'sounds' ? p.sounds !== false : !!p[k];
+  saveProfile({ [k]: !cur });
+  if (k === 'sounds' && !cur) sfx('tap');
+  appSettingsPanel();
+}
+
+/* ---------- Efeitos sonoros ---------- */
+let actx = null;
+function beep(freq, dur = .05, vol = .06, delay = 0){
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime + delay, o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'triangle'; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + dur);
+  } catch(e){}
+}
+function sfx(kind){
+  if (prof().sounds === false) return;
+  if (kind === 'roll'){ for (let i = 0; i < 9; i++) beep(300 + Math.random() * 500, .04, .05, i * .06); beep(880, .12, .07, .6); }
+  else beep(620, .04, .05);
+}
+document.addEventListener('click', e => { if (e.target.closest('.btn, .lifebtn, .slice, .cmdchip, .statusbar')) sfx('tap'); });
 
 /* ---------- Dano de comandante ---------- */
 function cmdPanel(i){
@@ -749,8 +1026,14 @@ async function importToList(file){
 
 /* ---------- Armazenamento ---------- */
 const store = {
-  get(k){ try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch(e){ return []; } },
-  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+  get(k){
+    if (session.uid && CLOUD_KEYS.includes(k)) return session.data[k] || [];
+    try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch(e){ return []; }
+  },
+  set(k, v){
+    if (session.uid && CLOUD_KEYS.includes(k)){ session.data[k] = v; cloudPush(k, v); return; }
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){}
+  }
 };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const MANA = { W:['Branco','#F5EFD0','#222'], U:['Azul','#2F7BD8','#fff'], B:['Preto','#3A3340','#fff'], R:['Vermelho','#D6372B','#fff'], G:['Verde','#1F9D55','#fff'] };
@@ -758,20 +1041,28 @@ const manaDot = (c, size = 22) => `<span style="width:${size}px;height:${size}px
 
 /* ---------- Meus Decks ---------- */
 function decksPanel(){
-  const decks = store.get('gw_decks');
-  const rows = decks.map(d => `
-    <article class="flex items-center gap-3 bg-surface rounded-xl p-2 mb-3 border border-white/5">
-      <div class="w-16 h-16 rounded-lg bg-cover bg-center shrink-0 bg-surface2" style="background-image:url('${d.img}')"></div>
-      <div class="flex-1 min-w-0">
-        <h4 class="font-bold truncate">${esc(d.name)}</h4>
-        <p class="text-xs text-white/50 truncate">${esc(d.commander)}${d.cards && d.cards.length ? ' · ' + d.cards.reduce((s, c) => s + c.qty, 0) + ' cartas' : ''}</p>
-        <div class="flex gap-1 mt-1.5">${d.colors.map(c => manaDot(c, 18)).join('') || '<span class="text-[11px] text-white/30">Incolor</span>'}</div>
+  const decks = store.get('gw_decks'), active = prof().activeDeck;
+  const cards = decks.map(d => `
+    <article class="bg-surface rounded-2xl overflow-hidden border ${d.id === active ? 'border-neon shadow-[0_0_16px_rgba(0,255,136,.25)]' : 'border-white/5'} flex flex-col">
+      <div class="relative h-24 bg-cover bg-center bg-surface2" style="background-image:url('${d.img}')">
+        <div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+        ${d.id === active ? '<span class="absolute top-2 left-2 text-[10px] font-extrabold tracking-widest px-2 py-0.5 rounded-full bg-neon text-black">ATIVO</span>' : ''}
+        <button onclick="deleteDeck('${d.id}')" aria-label="Excluir deck" class="absolute top-1 right-1 w-9 h-9 grid place-items-center rounded-full bg-black/50 text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
       </div>
-      <button onclick="deleteDeck('${d.id}')" aria-label="Excluir deck" class="w-11 h-11 grid place-items-center rounded-full text-red-400 active:bg-red-400/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+      <div class="p-3 flex-1 flex flex-col">
+        <h4 class="font-bold text-sm truncate">${esc(d.name)}</h4>
+        <p class="text-[11px] text-white/50 truncate">${esc(d.commander)}</p>
+        <div class="flex items-center justify-between mt-2">
+          <span class="flex gap-1">${d.colors.map(c => manaDot(c, 16)).join('') || '<span class="text-[10px] text-white/30">Incolor</span>'}</span>
+          <span class="text-xs font-extrabold ${d.games ? 'text-neon' : 'text-white/30'}" title="Winrate">${winrate(d)}</span>
+        </div>
+        <p class="text-[10px] text-white/30 mt-1">${d.games ? d.games + ' partida' + (d.games > 1 ? 's' : '') + ' · ' : ''}${d.cards && d.cards.length ? d.cards.reduce((n, c) => n + c.qty, 0) + ' cartas' : 'sem lista'}</p>
+        <button onclick="setActiveDeck('${d.id}')" ${d.id === active ? 'disabled' : ''} class="btn mt-3 h-10 rounded-lg text-xs font-extrabold tracking-wider ${d.id === active ? 'bg-neon/10 text-neon/60' : 'border border-neon/60 text-neon active:bg-neon/10'}">${d.id === active ? 'DECK ATIVO' : 'TORNAR ATIVO'}</button>
+      </div>
     </article>`).join('');
   openPanel('Meus Decks', `
-    <button onclick="deckForm()" class="btn w-full h-14 mt-4 mb-4 rounded-xl bg-neon text-black font-extrabold tracking-wider flex items-center justify-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i>NOVO DECK</button>
-    ${rows || `<div class="text-center text-white/40 py-12"><i data-lucide="layers" class="w-10 h-10 mx-auto mb-3"></i><p class="text-sm">Nenhum deck cadastrado ainda.</p></div>`}`);
+    <button onclick="deckForm()" class="btn w-full h-14 mt-4 mb-4 rounded-xl bg-neon text-black font-extrabold tracking-wider flex items-center justify-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i>IMPORTAR / CRIAR DECK</button>
+    ${cards ? `<div class="grid grid-cols-2 gap-3">${cards}</div>` : `<div class="text-center text-white/40 py-12"><i data-lucide="layers" class="w-10 h-10 mx-auto mb-3"></i><p class="text-sm">Nenhum deck cadastrado ainda.</p></div>`}`);
 }
 function deleteDeck(id){
   openModal(`${titleH('Excluir deck?')}<p class="text-white/70 text-sm mb-5">Essa ação não pode ser desfeita.</p>
@@ -781,6 +1072,7 @@ function deleteDeck(id){
 function doDeleteDeck(id){
   store.set('gw_decks', store.get('gw_decks').filter(d => d.id !== id));
   players.forEach(p => { if (p.deck === id) clearDeck(p); });
+  if (prof().activeDeck === id) saveProfile({ activeDeck:null });
   closeModal(); decksPanel();
 }
 
@@ -879,12 +1171,15 @@ function renderCollection(){
       <button onclick="removeCard('${c.id}')" aria-label="Remover" class="w-10 h-10 grid place-items-center rounded-full text-red-400 active:bg-red-400/10"><i data-lucide="x" class="w-5 h-5"></i></button>
     </li>`).join('');
   $('#col').innerHTML = `
-    <div class="flex gap-1 p-1 bg-surface rounded-xl mt-4 mb-4">${tab('have','HAVE · Tenho')}${tab('want','WANT · Procuro')}</div>
-    <div class="rounded-2xl border border-dashed border-neon/40 bg-neon/5 p-3 flex items-center gap-3 mb-4">
-      <span class="w-10 h-10 grid place-items-center rounded-full bg-neon/15 text-neon shrink-0"><i data-lucide="repeat" class="w-5 h-5"></i></span>
-      <span class="flex-1"><span class="block text-sm font-bold text-neon">Match de Trocas</span>
-        <span class="block text-xs text-white/60">Em breve: cruzamos seu HAVE com o WANT de outros jogadores da comunidade.</span></span>
-      <span class="text-[10px] font-extrabold tracking-widest px-2 py-1 rounded-full bg-neon text-black">EM BREVE</span>
+    <div class="flex gap-1 p-1 bg-surface rounded-xl mt-4 mb-4">${tab('have','HAVE (Tenho)')}${tab('want','WANT (Procuro)')}</div>
+    <div class="relative overflow-hidden rounded-2xl border border-neon/50 bg-gradient-to-br from-emerald-950 via-[#06150f] to-surface p-4 mb-4 shadow-[0_0_24px_rgba(0,255,136,.12)]">
+      <span class="radar absolute -right-6 -top-6 w-28 h-28 rounded-full border border-neon/30"></span><span class="radar d2 absolute -right-6 -top-6 w-28 h-28 rounded-full border border-neon/30"></span>
+      <div class="relative flex items-center gap-3">
+        <span class="w-11 h-11 grid place-items-center rounded-full bg-neon/15 text-neon shrink-0"><i data-lucide="radar" class="w-6 h-6"></i></span>
+        <span class="flex-1"><span class="block font-serif font-bold tracking-wide text-neon">RADAR DE MATCHES</span>
+          <span class="block text-xs text-white/60">Em breve: cruzamos o HAVE e o WANT dos jogadores do grupo e avisamos quando houver troca possível.</span></span>
+      </div>
+      <div class="relative flex gap-2 mt-3 text-[11px]"><span class="px-2.5 py-1 rounded-full bg-black/40 text-white/70">${store.get('gw_have').length} no HAVE</span><span class="px-2.5 py-1 rounded-full bg-black/40 text-white/70">${store.get('gw_want').length} no WANT</span><span class="ml-auto px-2.5 py-1 rounded-full bg-neon text-black font-extrabold tracking-widest">EM BREVE</span></div>
     </div>
     <div class="bg-surface rounded-2xl p-3 space-y-2">
       <input id="cd-name" placeholder="Nome da carta" autocomplete="off" class="w-full bg-surface2 rounded-xl px-4 h-12 outline-none focus:ring-1 focus:ring-neon">
@@ -911,6 +1206,12 @@ function addCard(){
 function removeCard(id){ const key = 'gw_' + colTab; store.set(key, store.get(key).filter(c => c.id !== id)); renderCollection(); }
 
 /* ---------- Deck no Lifetap ---------- */
+function applyActiveDeck(){
+  const id = prof().activeDeck, p = players[0];
+  if (!id || p.deck) return;
+  const d = store.get('gw_decks').find(x => x.id === id); if (!d) return;
+  if (!p.base) p.base = { name:p.name, img:p.img }; p.deck = id; p.name = d.name; p.img = d.img; p.cmdr = d.commander; renderGrid();
+}
 function clearDeck(p){ if (p.base){ p.name = p.base.name; p.img = p.base.img; } p.deck = null; p.cmdr = null; }
 function deckPicker(i){
   const decks = store.get('gw_decks'), p = players[i];
@@ -984,6 +1285,61 @@ $('#view-game').addEventListener('click', e => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape'){ closeModal(); closePanel(); }
 });
+renderProfile();
+</script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDklSQ7APUu_DFU6z1Ucn1GAPTxNzr2FRk",
+  authDomain: "gwapp2.firebaseapp.com",
+  projectId: "gwapp2",
+  storageBucket: "gwapp2.firebasestorage.app",
+  messagingSenderId: "881790712292",
+  appId: "1:881790712292:web:46754ef5621cf516c9eff1"
+};
+
+const enabled = !Object.values(firebaseConfig).some(v => /^SUA_/.test(v));
+const cloud = { enabled };
+window.cloud = cloud;
+
+if (enabled){
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app), db = getFirestore(app);
+  Object.assign(cloud, {
+    signIn: (email, pass) => signInWithEmailAndPassword(auth, email, pass),
+    async signUp(email, pass, nick){
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      if (nick.trim()) await updateProfile(cred.user, { displayName:nick.trim() });
+      window.onCloudAuth && window.onCloudAuth(auth.currentUser);
+      return cred;
+    },
+    google: () => signInWithPopup(auth, new GoogleAuthProvider()),
+    logout: () => signOut(auth),
+    async loadAll(uid){
+      const out = { gw_decks:[], gw_have:[], gw_want:[] };
+      const ds = await getDocs(collection(db, 'users', uid, 'decks'));
+      ds.forEach(d => out.gw_decks.push(d.data()));
+      out.gw_decks.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      const cs = await getDocs(collection(db, 'users', uid, 'collection'));
+      cs.forEach(d => { if (d.id === 'have') out.gw_have = d.data().items || []; if (d.id === 'want') out.gw_want = d.data().items || []; });
+      const ps = await getDoc(doc(db, 'users', uid)); out.profile = ps.exists() ? ps.data() : {};
+      return out;
+    },
+    saveProfile: (uid, p) => setDoc(doc(db, 'users', uid), { ...p, updatedAt:Date.now() }, { merge:true }),
+    async saveDecks(uid, decks){
+      const col = collection(db, 'users', uid, 'decks'), snap = await getDocs(col), b = writeBatch(db);
+      const ids = new Set(decks.map(d => d.id));
+      snap.forEach(s => { if (!ids.has(s.id)) b.delete(s.ref); });
+      decks.forEach(d => b.set(doc(col, d.id), { ...d, updatedAt:Date.now() }));
+      await b.commit();
+    },
+    saveList: (uid, key, items) => setDoc(doc(db, 'users', uid, 'collection', key), { items, updatedAt:Date.now() })
+  });
+  onAuthStateChanged(auth, u => window.onCloudAuth && window.onCloudAuth(u));
+}
 </script>
 </body>
 </html>
